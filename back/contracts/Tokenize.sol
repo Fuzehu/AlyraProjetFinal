@@ -21,13 +21,15 @@ contract Tokenize is ERC1155URIStorage, Ownable {
 
     struct GFV {
         string tokenName;
-        uint256 tokenId; 
+        uint256 tokenId; // can't set lower uint as we're using the Counters library
         uint16 totalSupply;
+        string tokenURI;
     }
 
 
     GFV[] public _gfvTokens;
 
+    bool private _initialized = false;
 
     /// event emitted when a new token is minted
     event TokenMinted(uint256 indexed tokenId, string tokenName, uint16 totalSupply, string uri); 
@@ -43,8 +45,10 @@ contract Tokenize is ERC1155URIStorage, Ownable {
      *      Additionally, the "GENESIS" token will be stored at index 0 of the _gfvTokens array, while the next token minted; tokenId 1 will get the index 1 : this arrangement follows a logical pattern
      */
     function init() external onlyOwner {
-        _gfvTokens.push(GFV("GENESIS", 0, 1));
-        _mint(0xAC164473923FDF6Fc60C655b5425169d1bB3429A, 0, 1, "");
+        require(!_initialized, "Init has already been called");
+        _gfvTokens.push(GFV("GENESIS", 0, 1, ""));
+        _mint(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266, 0, 1, "");
+        _initialized = true;
     } 
     
 
@@ -65,7 +69,7 @@ contract Tokenize is ERC1155URIStorage, Ownable {
         _tokenIds.increment();
         uint256 newTokenId = _tokenIds.current();
 
-        _gfvTokens.push(GFV(_tokenName, newTokenId, _totalSupply));
+        _gfvTokens.push(GFV(_tokenName, newTokenId, _totalSupply, _tokenURI));
 
         _setURI(newTokenId, _tokenURI);
         
