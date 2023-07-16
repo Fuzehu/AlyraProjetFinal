@@ -4,8 +4,7 @@ async function main() {
   const Tokenize = await ethers.getContractFactory("Tokenize");
   console.log("Deploying the Tokenize contract...");
   const tokenize = await Tokenize.deploy();
-  await tokenize.deployed();
-  console.log("Tokenize contract deployed at address:", tokenize.address);
+  console.log("Tokenize contract deployed at address:", tokenize.target);
 }
 
 

@@ -57,7 +57,7 @@ describe('DiscountToken', function () {
   });
 
   
-  describe('Test regardinng the mint function', function () {
+  describe('Test regarding the mint function', function () {
     it('should mint the expected number of tokens for a registered admin address', async function () {
       await discountToken.connect(owner).addAdminRights(user1.address);
       await discountToken.connect(user1).mint(owner.address, 100);

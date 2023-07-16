@@ -30,7 +30,7 @@ contract StakingTokenId1 is ERC1155Receiver, Ownable, DiscountToken, ReentrancyG
 
     mapping(address => StakedTokenInfo) public stakedTokens;
 
-    uint256 public rewardsRatePerMinute;
+    uint256 public rewardsRatePerSecond;
 
     event Staked(address indexed staker, uint24 _tokenId, uint24 amountStaked);
     event Unstaked(address indexed staker, uint24 _tokenId, uint24 amountUnstaked);
@@ -43,13 +43,23 @@ contract StakingTokenId1 is ERC1155Receiver, Ownable, DiscountToken, ReentrancyG
      * @param _erc1155Contract The address of the Tokenize ERC1155 contract used for staking
      * @param _erc20Contract The address of the DiscountToken ERC20 contract used for rewards distribution
      * @dev Initializes the erc1155Contract and erc20Contract variables with the provided contract addresses
-     * @dev The rewards rate is calculated to reach a target of 6 MDT claimable as rewards over a 9 months staking period
-     * @dev Sets the rewardsRatePerMinute to a predefined value of 15432098765432 (rewardRate = 6 tokens / 388800 minutes = 0.000015432098765432 * 10^18 = 15432098765432)
+     * @dev This contract uses a fixed reward rate per second to control the generation of tokens. 
+     * We want a user to generate 6 tokens over a period of 9 months. To achieve this, we need to set a certain 
+     * reward rate per second. We start by determining the total number of seconds in 9 months which is approximately
+     * 23,328,000 seconds (30 days/month * 24 hours/day * 60 minutes/hour * 60 seconds/minute * 9 months).
+     * To generate 6 tokens over this period, we divide the total number of tokens by the total number of seconds. 
+     * This gives us a reward rate of 0.000000257201646090534 tokens per second (6 tokens / 23,328,000 seconds).
+     * However, since we are dealing with Ethereum, we often perform calculations at a scale of 10^-18 for precision. 
+     * So we multiply our reward rate by 10^18 to get our final reward rate per second in terms of wei (the smallest 
+     * denomination of ether). This comes out to be approximately 257201 tokens per second at a scale of 10^-18 
+     * (0.000000257201646090534 tokens/second * 10^18).
+     * This means that with this reward rate, a user staking its tokens will generate approximately 6 tokens over 
+     * a period of 9 months for each token staked.
      */
     constructor(address _erc1155Contract, address _erc20Contract) {
         erc1155Contract = Tokenize(_erc1155Contract); 
         erc20Contract = DiscountToken(_erc20Contract); 
-        rewardsRatePerMinute = 15432098765432;
+        rewardsRatePerSecond = 257201;
     }
 
 
@@ -72,7 +82,7 @@ contract StakingTokenId1 is ERC1155Receiver, Ownable, DiscountToken, ReentrancyG
         require(tokenInfo.stakedAmount > 0, "StakingContract: No token staked");
 
         uint256 stakingPeriod = block.timestamp - tokenInfo.stakingStartTime;
-        uint256 rewardsEarned = tokenInfo.stakedAmount * stakingPeriod * rewardsRatePerMinute;
+        uint256 rewardsEarned = tokenInfo.stakedAmount * stakingPeriod * rewardsRatePerSecond;
 
         require(rewardsEarned > 0, "StakingContract: No rewards earned");
         erc20Contract.mint(_staker, rewardsEarned); // require to set this contract as "Admin" in the DiscountToken contract
@@ -95,7 +105,7 @@ contract StakingTokenId1 is ERC1155Receiver, Ownable, DiscountToken, ReentrancyG
      * @dev Emits a Staked returning the unstaked token ID and the amount of tokens staked by the given staker address 
      * @dev This function is non-reentrant to prevent reentrant calls during the staking process
      */
-    function stakeERC1155(uint24 _tokenId, uint24 _amount) external nonReentrant {
+    function stakeERC1155ID1(uint24 _tokenId, uint24 _amount) external nonReentrant {
         require(_amount > 0, "StakingContract: Invalid amount");
         require(_tokenId == 1, "StakingContract: Only tokens with ID 1 can be staked in this Staking Pool");
 
@@ -108,7 +118,7 @@ contract StakingTokenId1 is ERC1155Receiver, Ownable, DiscountToken, ReentrancyG
         erc1155Contract.safeTransferFrom(msg.sender, address(this), _tokenId, _amount, "");
 
         tokenInfo.tokenId = _tokenId;
-        tokenInfo.stakedAmount = _amount;
+        tokenInfo.stakedAmount += _amount;
         tokenInfo.stakingStartTime = block.timestamp;
 
         emit Staked(msg.sender, _tokenId, _amount);
@@ -137,7 +147,7 @@ contract StakingTokenId1 is ERC1155Receiver, Ownable, DiscountToken, ReentrancyG
      * @dev This function is non-reentrant to prevent reentrant calls during the unstaking process
      */
     function unstake(uint24 _unstakeAmount) external nonReentrant {
-        require(_unstakeAmount > 0, "StakingContract: Invalid staked amount");
+        require(_unstakeAmount > 0, "StakingContract: Invalid unstaked amount");
 
         StakedTokenInfo storage tokenInfo = stakedTokens[msg.sender];
         require(tokenInfo.stakedAmount >= _unstakeAmount, "StakingContract: Insufficient staked amount");
@@ -147,7 +157,6 @@ contract StakingTokenId1 is ERC1155Receiver, Ownable, DiscountToken, ReentrancyG
 
         erc1155Contract.safeTransferFrom(address(this), msg.sender, tokenInfo.tokenId, _unstakeAmount, "");
 
-        // Mettre à jour les informations de stakedTokens en supprimant les informations du staker
         // Update the stakedTokens information by removing the staker's data.
         tokenInfo.stakedAmount -= _unstakeAmount;
 
@@ -159,19 +168,18 @@ contract StakingTokenId1 is ERC1155Receiver, Ownable, DiscountToken, ReentrancyG
 /////////////////////////////////////////////////////// *-- Getters *-- ///////////////////////////////////////////////////////
 
     /**
-     * @notice Returns the pending rewards for a given user in the Staking Pool
-     * @param _user The user address to retrieve the pending rewards for
+     * @notice Returns the pending rewards present in the Staking Pool for msg.sender
      * @return rewards The amount of pending rewards for the given staker
      * @dev Requires that the user has staked at least one token
      * @dev Calculates the staking period based on the current timestamp and the staking start time of the user's tokens
      * @dev Calculates the rewards by multiplying the staked amount, staking period, and rewards rate per minute
      */
-    function getPendingRewards(address _user) external view returns (uint256) {
-        StakedTokenInfo storage tokenInfo = stakedTokens[_user];
+    function getPendingRewards() external view returns (uint256) {
+        StakedTokenInfo storage tokenInfo = stakedTokens[msg.sender];
         require(tokenInfo.stakedAmount > 0, "StakingContract: No token staked");
 
         uint256 stakingPeriod = block.timestamp - tokenInfo.stakingStartTime;
-        uint256 rewards = tokenInfo.stakedAmount * stakingPeriod * rewardsRatePerMinute;
+        uint256 rewards = tokenInfo.stakedAmount * stakingPeriod * rewardsRatePerSecond;
         return rewards;
     }
 
@@ -194,8 +202,8 @@ contract StakingTokenId1 is ERC1155Receiver, Ownable, DiscountToken, ReentrancyG
     * @dev Only the contract owner can update the rewards rate
     * @dev Emits a RewardsRateUpdated with the _newRate settled
     */
-    function updateRewardsRatePerMinute(uint256 _newRate) onlyOwner external {
-        rewardsRatePerMinute = _newRate;
+    function updateRewardsRatePerSeconds(uint256 _newRate) onlyOwner external {
+        rewardsRatePerSecond = _newRate;
         emit RewardsRateUpdated(_newRate);
     }
 

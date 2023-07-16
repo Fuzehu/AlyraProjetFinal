@@ -4,8 +4,7 @@ async function main() {
   const DiscountToken = await ethers.getContractFactory("DiscountToken");
   console.log("Deploying the DiscountToken contract...");
   const discountToken = await DiscountToken.deploy();
-  await discountToken.deployed();
-  console.log("DiscountToken contract deployed at address:", discountToken.address);
+  console.log("DiscountToken contract deployed at address:", discountToken.target);
 }
 
 
