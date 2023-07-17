@@ -2,7 +2,7 @@
 
 import { Flex, Text, Box, Link as ChakraLink } from '@chakra-ui/react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import NextLink from 'next/link';
+import Link from 'next/link';
 
 const Header = () => {
   return (
@@ -11,26 +11,13 @@ const Header = () => {
       alignItems="center"
       p="2rem"
     >
-      <Text>
-        <img src="../../public/images/MCDVLogo.png" alt="Logo" />
-      </Text>
+      <Text>Mes Ceps de Vigne(logo)</Text>
 
       <Box display="flex" justifyContent="space-between" width="50%">
-        <NextLink href="/" passHref>
-          <ChakraLink>Index</ChakraLink>
-        </NextLink>
-
-        <NextLink href="/myVinesNFTs" passHref>
-          <ChakraLink>My Vines</ChakraLink>
-        </NextLink>
-
-        <NextLink href="/staking" passHref>
-          <ChakraLink>Staking Pools</ChakraLink>
-        </NextLink>
-
-        <NextLink href="/admin" passHref>
-          <ChakraLink>Admin Panel</ChakraLink>
-        </NextLink>
+        <Link href="/">Index</Link>
+        <Link href="myVinesTokens">My Vines</Link>
+        <Link href="/staking">Staking Pools</Link>
+        <Link href="/admin">Admin Panel</Link>
       </Box>
 
       <ConnectButton />

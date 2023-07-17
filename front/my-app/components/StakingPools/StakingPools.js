@@ -1,13 +1,22 @@
 "use client"
 
 import React from 'react'
+import StakingPoolsContent from './StakingPoolsContent';
+import NotConnected from '../NotConnected/NotConnected'
 
-const StakingPools = () => {
-  return (
-    <div>
-        Welcome to Staking Pools
-    </div>
-  )
+// WAGMI
+import { useAccount } from 'wagmi';
+
+const MyVines = () => {
+
+    // Get logged wallet infos
+    const { isConnected } = useAccount()
+
+    return (
+        <div>
+          {isConnected ? <StakingPoolsContent /> : <NotConnected />}
+        </div>
+    )
 }
 
-export default StakingPools
+export default MyVines

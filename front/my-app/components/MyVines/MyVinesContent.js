@@ -2,12 +2,12 @@
 
 import React from 'react'
 
-const IsAdmin = () => {
+const MyVinesContent = () => {
   return (
     <div>
-        Welcome Admin
+      Content here
     </div>
   )
 }
 
-export default IsAdmin
+export default MyVinesContent

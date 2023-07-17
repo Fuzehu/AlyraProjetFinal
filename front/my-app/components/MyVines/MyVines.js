@@ -1,13 +1,22 @@
 "use client"
 
 import React from 'react'
+import MyVinesContent from './MyVinesContent'
+import NotConnected from '../NotConnected/NotConnected'
+
+// WAGMI
+import { useAccount } from 'wagmi';
 
 const MyVines = () => {
-  return (
-    <div>
-      Welcomes to My Vines Collection
-    </div>
-  )
+
+    // Get logged wallet infos
+    const { isConnected } = useAccount()
+
+    return (
+        <div>
+          {isConnected ? <MyVinesContent /> : <NotConnected />}
+        </div>
+    )
 }
 
 export default MyVines
