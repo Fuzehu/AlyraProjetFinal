@@ -24,6 +24,8 @@ contract DiscountToken is ERC20, Ownable {
 
     mapping (address => bool) public isAdmin;
 
+    event AdminRightsGranted(address indexed adminAddress);
+    event AdminRightsRevoked(address indexed adminAddress);
 
     /**
      * @notice Grants admin rights to the specified address
@@ -32,6 +34,8 @@ contract DiscountToken is ERC20, Ownable {
      */
     function addAdminRights(address _addr) external onlyOwner {
         isAdmin[_addr] = true;
+        emit AdminRightsGranted(_addr);
+
     }
 
 
@@ -42,6 +46,7 @@ contract DiscountToken is ERC20, Ownable {
      */
     function revokeAdminRights(address _addr) external onlyOwner {
         isAdmin[_addr] = false;
+        emit AdminRightsRevoked(_addr);
     }
 
 

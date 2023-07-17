@@ -3,7 +3,7 @@ const { ethers } = require("hardhat");
 const { expectEvent } = require('@openzeppelin/test-helpers');
 
 
-describe('StakingTokenId1', function() {
+describe('StakingERC1155Id1', function() {
     let owner;
     let addr1;
     let addr2;
@@ -11,7 +11,7 @@ describe('StakingTokenId1', function() {
 
     let discountToken;
     let tokenize;
-    let stakingTokenId1;
+    let stakingERC1155Id1;
 
     beforeEach(async function() {
         [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
@@ -24,16 +24,16 @@ describe('StakingTokenId1', function() {
           DiscountToken.deploy()
         ]);
 
-        const StakingTokenId1 = await ethers.getContractFactory("StakingTokenId1");
-        stakingTokenId1 = await StakingTokenId1.deploy(tokenize.target, discountToken.target);
+        const StakingERC1155Id1 = await ethers.getContractFactory("StakingERC1155Id1");
+        stakingERC1155Id1 = await StakingERC1155Id1.deploy(tokenize.target, discountToken.target);
     
-        //Set the StakingTokenId1 as admin on DiscountToken contract
-        await discountToken.connect(owner).addAdminRights(stakingTokenId1.target);
+        //Set the StakingERC1155Id1 as admin on DiscountToken contract
+        await discountToken.connect(owner).addAdminRights(stakingERC1155Id1.target);
     
-        // Set approval for StakingTokenId1 on Tokenize contract
-        await tokenize.connect(owner).setApprovalForAll(stakingTokenId1.target, true);
-        await tokenize.connect(addr1).setApprovalForAll(stakingTokenId1.target, true);
-        await tokenize.connect(addr2).setApprovalForAll(stakingTokenId1.target, true);
+        // Set approval for StakingERC1155Id1 on Tokenize contract
+        await tokenize.connect(owner).setApprovalForAll(stakingERC1155Id1.target, true);
+        await tokenize.connect(addr1).setApprovalForAll(stakingERC1155Id1.target, true);
+        await tokenize.connect(addr2).setApprovalForAll(stakingERC1155Id1.target, true);
     
         // Mint tokens with different names and URIs
         await tokenize.connect(owner).mintToken(addr1, 200, "token1", "ipfs://tokenHashMetadata1");
@@ -47,7 +47,7 @@ describe('StakingTokenId1', function() {
 
         beforeEach(async function() {
             // Stake some tokens first
-            await stakingTokenId1.connect(addr1).stakeERC1155ID1(1, 1);
+            await stakingERC1155Id1.connect(addr1).stakeERC1155ID1(1, 1);
             
             // Forward time by 60 minutes (3600 seconds)
             await ethers.provider.send("evm_increaseTime", [3600]);
@@ -56,10 +56,10 @@ describe('StakingTokenId1', function() {
 
         it('should allow users to claim rewards correctly', async function() {
             const rewardsBefore = await discountToken.balanceOf(addr1);
-            await stakingTokenId1.connect(addr1).claimRewards();
+            await stakingERC1155Id1.connect(addr1).claimRewards();
             const rewardsAfter = await discountToken.balanceOf(addr1);
         
-            const rate = await stakingTokenId1.rewardsRatePerSecond();
+            const rate = await stakingERC1155Id1.rewardsRatePerSecond();
             const hourInSeconds = 3600; 
             const expectedRewards = hourInSeconds * Number(rate.toString());
         
@@ -76,10 +76,10 @@ describe('StakingTokenId1', function() {
 
         /* ORIGINAL TEST THAT FAILS : we consider that this test is succesfull as there is alwys a small margin of errors for computations with Solidity
         it('should emit the Claimed event correctly', async function () {
-            const expectedRewards = await stakingTokenId1.connect(addr1).getPendingRewards();
+            const expectedRewards = await stakingERC1155Id1.connect(addr1).getPendingRewards();
 
-            await expect(stakingTokenId1.connect(addr1).claimRewards())
-        .to.emit(stakingTokenId1, 'Claimed')
+            await expect(stakingERC1155Id1.connect(addr1).claimRewards())
+        .to.emit(stakingERC1155Id1, 'Claimed')
         .withArgs(addr1.address, expectedRewards);
         });
         EXPECTED VALUE = 925923600
@@ -88,25 +88,25 @@ describe('StakingTokenId1', function() {
 
         // we added this test with value written because we can consider previous test as succesfull annd therefore to benefit from the coverage of this function
         it('should emit the Claimed event correctly', async function () {
-            const expectedRewards = await stakingTokenId1.connect(addr1).getPendingRewards();
+            const expectedRewards = await stakingERC1155Id1.connect(addr1).getPendingRewards();
 
-            await expect(stakingTokenId1.connect(addr1).claimRewards())
-        .to.emit(stakingTokenId1, 'Claimed')
+            await expect(stakingERC1155Id1.connect(addr1).claimRewards())
+        .to.emit(stakingERC1155Id1, 'Claimed')
         .withArgs(addr1.address, 926180801);
         });
     
         it('should not allow users to claim rewards if no tokens have been staked', async function() {
-            await expect(stakingTokenId1.connect(addr2).claimRewards()).to.be.revertedWith("StakingContract: No token staked");
+            await expect(stakingERC1155Id1.connect(addr2).claimRewards()).to.be.revertedWith("StakingContract: No token staked");
         });
     
     
         it('should revert if a random user tries to claim the rewards of another user', async function() {
-            await expect(stakingTokenId1.connect(addr2).claimRewards()).to.be.revertedWith("StakingContract: No token staked");
+            await expect(stakingERC1155Id1.connect(addr2).claimRewards()).to.be.revertedWith("StakingContract: No token staked");
         });
     
         it('should update the staking start time after claiming rewards', async function() {
-            await stakingTokenId1.connect(addr1).claimRewards();
-            const stakingStartTime = (await stakingTokenId1.stakedTokens(addr1)).stakingStartTime;
+            await stakingERC1155Id1.connect(addr1).claimRewards();
+            const stakingStartTime = (await stakingERC1155Id1.stakedTokens(addr1)).stakingStartTime;
             expect(stakingStartTime).to.be.closeTo((await ethers.provider.getBlock('latest')).timestamp, 2);
         });
 
@@ -116,8 +116,8 @@ describe('StakingTokenId1', function() {
     describe("Test the stakeERC1155ID1 function", function () {
 
         it("Should stake tokens and reflect correct staked amount", async function () {
-            await stakingTokenId1.connect(addr1).stakeERC1155ID1(1, 50); 
-            expect(await stakingTokenId1.getStakedAmount(addr1)).to.equal(50);
+            await stakingERC1155Id1.connect(addr1).stakeERC1155ID1(1, 50); 
+            expect(await stakingERC1155Id1.getStakedAmount(addr1)).to.equal(50);
         });
 
         it("Should stake tokens correctly and update StakedTokenInfo correctly", async function() {
@@ -127,9 +127,9 @@ describe('StakingTokenId1', function() {
             const block = await ethers.provider.getBlock(blockNumber);
             const blockTimestampBeforeStaking = block.timestamp;
         
-            await stakingTokenId1.connect(addr1).stakeERC1155ID1(1, initialStakedAmount);
+            await stakingERC1155Id1.connect(addr1).stakeERC1155ID1(1, initialStakedAmount);
                 
-            const stakedTokensInfo = await stakingTokenId1.stakedTokens(addr1);
+            const stakedTokensInfo = await stakingERC1155Id1.stakedTokens(addr1);
             expect(stakedTokensInfo.tokenId).to.equal(1);
             expect(stakedTokensInfo.stakedAmount).to.equal(initialStakedAmount);
         
@@ -141,45 +141,45 @@ describe('StakingTokenId1', function() {
 
         it("Should emit the Staked event correctly", async function() {
             const initialStakedAmount = 100;
-            await expect(stakingTokenId1.connect(addr1).stakeERC1155ID1(1, initialStakedAmount))
-                .to.emit(stakingTokenId1, 'Staked')
+            await expect(stakingERC1155Id1.connect(addr1).stakeERC1155ID1(1, initialStakedAmount))
+                .to.emit(stakingERC1155Id1, 'Staked')
                 .withArgs(addr1.address, 1, initialStakedAmount);
         });
 
         it("Should revert when a user tries to stake more tokens than he owns", async function() {
             const overStakedAmount = 600; // More than the total supply of the token (200)
-            await expect(stakingTokenId1.connect(addr1).stakeERC1155ID1(1, overStakedAmount)).to.be.revertedWith("ERC1155: insufficient balance for transfer");
+            await expect(stakingERC1155Id1.connect(addr1).stakeERC1155ID1(1, overStakedAmount)).to.be.revertedWith("ERC1155: insufficient balance for transfer");
         });
 
         it("Should revert when a user stakes zero tokens", async function() {
             const zeroAmount = 0;
-            await expect(stakingTokenId1.connect(addr1).stakeERC1155ID1(1, zeroAmount)).to.be.revertedWith("StakingContract: Invalid amount");
+            await expect(stakingERC1155Id1.connect(addr1).stakeERC1155ID1(1, zeroAmount)).to.be.revertedWith("StakingContract: Invalid amount");
         });
 
         it("Should revert when a user stakes an unauthorized token ID", async function() {
             const unauthorizedTokenID = 2;
             const stakedAmount = 50;
-            await expect(stakingTokenId1.connect(addr1).stakeERC1155ID1(unauthorizedTokenID, stakedAmount)).to.be.revertedWith("StakingContract: Only tokens with ID 1 can be staked in this Staking Pool");
+            await expect(stakingERC1155Id1.connect(addr1).stakeERC1155ID1(unauthorizedTokenID, stakedAmount)).to.be.revertedWith("StakingContract: Only tokens with ID 1 can be staked in this Staking Pool");
         });
 
         it("Should claim pending rewards correctly before staking more tokens", async function() {
             const stakeAmount1 = 10;
             const stakeAmount2 = 20;
         
-            expect(await stakingTokenId1.getStakedAmount(addr1.address)).to.equal(0);
+            expect(await stakingERC1155Id1.getStakedAmount(addr1.address)).to.equal(0);
 
-            await stakingTokenId1.connect(addr1).stakeERC1155ID1(1, stakeAmount1);
-            expect(await stakingTokenId1.getStakedAmount(addr1.address)).to.equal(stakeAmount1);
+            await stakingERC1155Id1.connect(addr1).stakeERC1155ID1(1, stakeAmount1);
+            expect(await stakingERC1155Id1.getStakedAmount(addr1.address)).to.equal(stakeAmount1);
         
             await network.provider.send("evm_increaseTime", [60 * 60 * 24]); // increase time by 24 hours
             await network.provider.send("evm_mine"); // mine a new block
         
             const beforeStakeRewardsBalance = await discountToken.balanceOf(addr1.address);
-            await stakingTokenId1.connect(addr1).stakeERC1155ID1(1, stakeAmount2);
+            await stakingERC1155Id1.connect(addr1).stakeERC1155ID1(1, stakeAmount2);
             const afterStakeRewardsBalance = await discountToken.balanceOf(addr1.address);
         
             expect(afterStakeRewardsBalance).to.be.gt(beforeStakeRewardsBalance);
-            expect(await stakingTokenId1.getStakedAmount(addr1.address)).to.equal(stakeAmount1 + stakeAmount2);
+            expect(await stakingERC1155Id1.getStakedAmount(addr1.address)).to.equal(stakeAmount1 + stakeAmount2);
         });
         
     });
@@ -187,85 +187,85 @@ describe('StakingTokenId1', function() {
 
     describe('Test the unstake function', function() {
         it("should allow a user to unstake tokens successfully", async function() {
-            await stakingTokenId1.connect(addr1).stakeERC1155ID1(1, 50);
-            await stakingTokenId1.connect(addr1).unstake(30);
+            await stakingERC1155Id1.connect(addr1).stakeERC1155ID1(1, 50);
+            await stakingERC1155Id1.connect(addr1).unstake(30);
 
-            expect(await stakingTokenId1.getStakedAmount(addr1)).to.equal(20);
+            expect(await stakingERC1155Id1.getStakedAmount(addr1)).to.equal(20);
             expect(await tokenize.balanceOf(addr1, 1)).to.equal(180);
         });
 
         it("should revert if a user tries to unstake more tokens than staked", async function() {
-            await stakingTokenId1.connect(addr1).stakeERC1155ID1(1, 50);
-            await expect(stakingTokenId1.connect(addr1).unstake(60)).to.be.revertedWith("StakingContract: Insufficient staked amount");
+            await stakingERC1155Id1.connect(addr1).stakeERC1155ID1(1, 50);
+            await expect(stakingERC1155Id1.connect(addr1).unstake(60)).to.be.revertedWith("StakingContract: Insufficient staked amount");
 
-            expect(await stakingTokenId1.getStakedAmount(addr1.address)).to.equal(50);
+            expect(await stakingERC1155Id1.getStakedAmount(addr1.address)).to.equal(50);
             expect(await tokenize.balanceOf(addr1.address, 1)).to.equal(150);
         });
 
         it("should claim rewards before unstaking tokens", async function() {
-            await stakingTokenId1.connect(addr1).stakeERC1155ID1(1, 50);
+            await stakingERC1155Id1.connect(addr1).stakeERC1155ID1(1, 50);
             const previousRewards = await discountToken.balanceOf(addr1.address);
-            await stakingTokenId1.connect(addr1).unstake(30);
+            await stakingERC1155Id1.connect(addr1).unstake(30);
             const currentRewards = await discountToken.balanceOf(addr1.address);
 
         
             expect(currentRewards).to.be.gt(previousRewards); 
-            expect(await stakingTokenId1.getStakedAmount(addr1.address)).to.equal(20);
+            expect(await stakingERC1155Id1.getStakedAmount(addr1.address)).to.equal(20);
             expect(await tokenize.balanceOf(addr1.address, 1)).to.equal(180);
         });
 
         it("should revert if a user tries to unstake tokens if he has no staked tokens", async function() {
-            await expect(stakingTokenId1.connect(addr1).unstake(10)).to.be.revertedWith("StakingContract: Insufficient staked amount");
+            await expect(stakingERC1155Id1.connect(addr1).unstake(10)).to.be.revertedWith("StakingContract: Insufficient staked amount");
 
-            expect(await stakingTokenId1.getStakedAmount(addr1)).to.equal("0");
+            expect(await stakingERC1155Id1.getStakedAmount(addr1)).to.equal("0");
             expect(await tokenize.balanceOf(addr1, 1)).to.equal(200);
         });
 
         it("should revert if a random user tries to unstake another user's tokens", async function() {
-            await stakingTokenId1.connect(addr1).stakeERC1155ID1(1, 50);
-            await expect(stakingTokenId1.connect(addr2).unstake(30)).to.be.revertedWith("StakingContract: Insufficient staked amount");
+            await stakingERC1155Id1.connect(addr1).stakeERC1155ID1(1, 50);
+            await expect(stakingERC1155Id1.connect(addr2).unstake(30)).to.be.revertedWith("StakingContract: Insufficient staked amount");
 
-            expect(await stakingTokenId1.getStakedAmount(addr1)).to.equal(50);
+            expect(await stakingERC1155Id1.getStakedAmount(addr1)).to.equal(50);
             expect(await tokenize.balanceOf(addr1, 1)).to.equal(150);
         });
 
         it("should revert if a user tries to unstake 0 tokens", async function() {
-            await expect(stakingTokenId1.connect(addr1).unstake(0)).to.be.revertedWith("StakingContract: Invalid unstaked amount");
+            await expect(stakingERC1155Id1.connect(addr1).unstake(0)).to.be.revertedWith("StakingContract: Invalid unstaked amount");
 
-            expect(await stakingTokenId1.getStakedAmount(addr1)).to.equal("0");
+            expect(await stakingERC1155Id1.getStakedAmount(addr1)).to.equal("0");
             expect(await tokenize.balanceOf(addr1, 1)).to.equal(200);
         });
 
         it('should transfer unstaked tokens back to the user', async function () {
-            await stakingTokenId1.connect(addr1).stakeERC1155ID1(1, 100);
-            await stakingTokenId1.connect(addr1).unstake(50);
+            await stakingERC1155Id1.connect(addr1).stakeERC1155ID1(1, 100);
+            await stakingERC1155Id1.connect(addr1).unstake(50);
             expect(await tokenize.balanceOf(addr1, 1)).to.equal(150);
         });
 
         it("should not lose rewards when unstaking tokens", async function() {
-            await stakingTokenId1.connect(addr1).stakeERC1155ID1(1, 50);
-            await stakingTokenId1.connect(addr1).unstake(30);
+            await stakingERC1155Id1.connect(addr1).stakeERC1155ID1(1, 50);
+            await stakingERC1155Id1.connect(addr1).unstake(30);
 
-            expect(await stakingTokenId1.getStakedAmount(addr1)).to.equal(20);
+            expect(await stakingERC1155Id1.getStakedAmount(addr1)).to.equal(20);
             expect(await discountToken.balanceOf(addr1.address)).to.be.gt("0");
         });
 
         it('should emit Unstaked event on successful unstaking', async function () {
-            await stakingTokenId1.connect(addr1).stakeERC1155ID1(1, 100);
-            await expect(stakingTokenId1.connect(addr1).unstake(50))
-                .to.emit(stakingTokenId1, 'Unstaked')
+            await stakingERC1155Id1.connect(addr1).stakeERC1155ID1(1, 100);
+            await expect(stakingERC1155Id1.connect(addr1).unstake(50))
+                .to.emit(stakingERC1155Id1, 'Unstaked')
                 .withArgs(addr1.address, 1, 50);
         });
 
         it("should update staking start time correctly when unstaking", async function() {
-            await stakingTokenId1.connect(addr1).stakeERC1155ID1(1, 50);
-            const previousStakingStartTime = (await stakingTokenId1.stakedTokens(addr1.address)).stakingStartTime;
+            await stakingERC1155Id1.connect(addr1).stakeERC1155ID1(1, 50);
+            const previousStakingStartTime = (await stakingERC1155Id1.stakedTokens(addr1.address)).stakingStartTime;
         
             await ethers.provider.send("evm_increaseTime", [600]); // increase time by 600 seconds
             await ethers.provider.send("evm_mine"); // mine the next block
         
-            await stakingTokenId1.connect(addr1).unstake(30);
-            const currentStakingStartTime = (await stakingTokenId1.stakedTokens(addr1.address)).stakingStartTime;
+            await stakingERC1155Id1.connect(addr1).unstake(30);
+            const currentStakingStartTime = (await stakingERC1155Id1.stakedTokens(addr1.address)).stakingStartTime;
             expect(currentStakingStartTime).to.be.gt(previousStakingStartTime);
         });
 
@@ -274,7 +274,7 @@ describe('StakingTokenId1', function() {
 
             it('getPendingRewards should return correct pending rewards after staking', async function() {
                 const stakeAmount = 1;
-                await stakingTokenId1.connect(addr1).stakeERC1155ID1(1, stakeAmount);
+                await stakingERC1155Id1.connect(addr1).stakeERC1155ID1(1, stakeAmount);
                 await network.provider.send("evm_mine");
             
                 // Simulate 1 hour of block time.
@@ -282,10 +282,10 @@ describe('StakingTokenId1', function() {
                 await network.provider.send("evm_increaseTime", [oneHourInSeconds]);
                 await network.provider.send("evm_mine");
             
-                const rewardsRatePerSecond = await stakingTokenId1.rewardsRatePerSecond();
+                const rewardsRatePerSecond = await stakingERC1155Id1.rewardsRatePerSecond();
                 const rewardsRatePerSecondNum = Number(rewardsRatePerSecond.toString());
                 const expectedRewards = stakeAmount * rewardsRatePerSecondNum * oneHourInSeconds;
-                const pendingRewards = await stakingTokenId1.connect(addr1).getPendingRewards();
+                const pendingRewards = await stakingERC1155Id1.connect(addr1).getPendingRewards();
                 const pendingRewardsNum = Number(pendingRewards.toString());
             
                 // Verify the pending rewards with a tolerance of 1%
@@ -298,7 +298,7 @@ describe('StakingTokenId1', function() {
             
         
             it('Should fail if no tokens staked', async function() {
-                await expect(stakingTokenId1.connect(addr2).getPendingRewards())
+                await expect(stakingERC1155Id1.connect(addr2).getPendingRewards())
                     .to.be.revertedWith('StakingContract: No token staked');
             });
         });
@@ -308,10 +308,10 @@ describe('StakingTokenId1', function() {
 
             it('getStakedAmount should return correct staked amount after staking', async function() {
                 const stakeAmount = 100;
-                await stakingTokenId1.connect(addr1).stakeERC1155ID1(1, stakeAmount);
+                await stakingERC1155Id1.connect(addr1).stakeERC1155ID1(1, stakeAmount);
                 await network.provider.send("evm_mine");
             
-                const stakedAmount = await stakingTokenId1.getStakedAmount(addr1.address);
+                const stakedAmount = await stakingERC1155Id1.getStakedAmount(addr1.address);
             
                 expect(stakedAmount).to.equal(stakeAmount);
             });
@@ -321,9 +321,9 @@ describe('StakingTokenId1', function() {
         describe('updateRewardsRatePerSeconds', function() {
             it('Should successfully update the rewards rate per second', async function() {
                 const newRewardsRatePerSecond = 777n;
-                await stakingTokenId1.connect(owner).updateRewardsRatePerSeconds(newRewardsRatePerSecond);
+                await stakingERC1155Id1.connect(owner).updateRewardsRatePerSeconds(newRewardsRatePerSecond);
 
-                const updatedRewardsRatePerSecond = await stakingTokenId1.rewardsRatePerSecond();
+                const updatedRewardsRatePerSecond = await stakingERC1155Id1.rewardsRatePerSecond();
 
                 expect(updatedRewardsRatePerSecond).to.equal(newRewardsRatePerSecond);
             });
@@ -331,15 +331,15 @@ describe('StakingTokenId1', function() {
             it('Should fail when a non-owner tries to update the rewards rate', async function() {
                 const newRewardsRatePerSecond = 777n;
 
-                await expect(stakingTokenId1.connect(addr1).updateRewardsRatePerSeconds(newRewardsRatePerSecond))
+                await expect(stakingERC1155Id1.connect(addr1).updateRewardsRatePerSeconds(newRewardsRatePerSecond))
                 .to.be.revertedWith('Ownable: caller is not the owner');
             });
 
             it('Should emit RewardsRateUpdated event on successful rate update', async function() {
                 const newRewardsRatePerSecond = 777n;
         
-                await expect(stakingTokenId1.connect(owner).updateRewardsRatePerSeconds(newRewardsRatePerSecond))
-                    .to.emit(stakingTokenId1, 'RewardsRateUpdated')
+                await expect(stakingERC1155Id1.connect(owner).updateRewardsRatePerSeconds(newRewardsRatePerSecond))
+                    .to.emit(stakingERC1155Id1, 'RewardsRateUpdated')
                     .withArgs(newRewardsRatePerSecond);
             });
         });
@@ -350,10 +350,10 @@ describe('StakingTokenId1', function() {
                 await expect(tokenize.connect(addr1).safeTransferFrom(addr1, discountToken.target, 1, 100, '0x')).to.be.reverted;
             });
         
-            it('Should successfully receive ERC1155 tokens for StakingTokenId1', async function() {
-                await tokenize.connect(addr1).safeTransferFrom(addr1, stakingTokenId1.target, 1, 100, '0x');
+            it('Should successfully receive ERC1155 tokens for stakingERC1155Id1', async function() {
+                await tokenize.connect(addr1).safeTransferFrom(addr1, stakingERC1155Id1.target, 1, 100, '0x');
         
-                const balance = await tokenize.balanceOf(stakingTokenId1.target, 1);
+                const balance = await tokenize.balanceOf(stakingERC1155Id1.target, 1);
                 expect(balance).to.equal(100);
             });
         });
@@ -367,13 +367,13 @@ describe('StakingTokenId1', function() {
                 await expect(tokenize.connect(addr1).safeBatchTransferFrom(addr1, discountToken.target, ids, amounts, '0x')).to.be.reverted;
             });
     
-            it('Should successfully receive batch of ERC1155 tokens for StakingTokenId1', async function() {
+            it('Should successfully receive batch of ERC1155 tokens for stakingERC1155Id1', async function() {
                 const ids = [1, 3];
                 const amounts = [100, 200];
-                await tokenize.connect(addr1).safeBatchTransferFrom(addr1, stakingTokenId1.target, ids, amounts, '0x');
+                await tokenize.connect(addr1).safeBatchTransferFrom(addr1, stakingERC1155Id1.target, ids, amounts, '0x');
     
-                const balance1 = await tokenize.balanceOf(stakingTokenId1.target, 1);
-                const balance2 = await tokenize.balanceOf(stakingTokenId1.target, 3);
+                const balance1 = await tokenize.balanceOf(stakingERC1155Id1.target, 1);
+                const balance2 = await tokenize.balanceOf(stakingERC1155Id1.target, 3);
                 expect(balance1).to.equal(100);
                 expect(balance2).to.equal(200);
             });

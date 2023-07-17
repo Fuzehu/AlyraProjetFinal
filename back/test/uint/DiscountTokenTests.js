@@ -54,6 +54,19 @@ describe('DiscountToken', function () {
         'Ownable: caller is not the owner'
       );
     });
+
+    it('should emit AdminRightsGranted event correctly when a new admin is added', async function () {
+      await expect(discountToken.connect(owner).addAdminRights(user1))
+        .to.emit(discountToken, 'AdminRightsGranted')
+        .withArgs(user1.address);
+    });
+
+    it('should emit AdminRightsRevoked event correctly when an admin is removed', async function () {
+      await discountToken.connect(owner).addAdminRights(user1);
+      await expect(discountToken.connect(owner).revokeAdminRights(user1))
+        .to.emit(discountToken, 'AdminRightsRevoked')
+        .withArgs(user1.address);
+    });
   });
 
   
