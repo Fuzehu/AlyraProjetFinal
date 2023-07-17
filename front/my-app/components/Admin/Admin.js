@@ -1,9 +1,13 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
-import IsAdmin from './IsAdmin'
-import NotAdmin from './NotAdmin'
+import IsAdmin from './IsAdmin/IsAdmin'
+import NotAdmin from './NotAdmin/NotAdmin'
 import NotConnected from '../NotConnected/NotConnected'
+
+//CHAKRA UI
+import { Box, Flex, Text } from '@chakra-ui/react'
+
 
 // WAGMI
 import { useAccount } from 'wagmi';
@@ -47,7 +51,6 @@ const Admin = () => {
             console.log('Address:', address);*/
     
             const adminStatus = owner1 === address && owner2 === address && owner3 === address;
-            console.log('Admin status:', adminStatus);
             setIsAdmin(adminStatus)
         }
         if (isConnected) {
@@ -56,20 +59,18 @@ const Admin = () => {
     }, [isConnected]);
 
     return (
-        <div>
-          
-            {isConnected ? (
-                isAdmin ? (
-                    <IsAdmin />
-                ) : ( 
-                    <NotAdmin />
-                )
-            ) : (
-                <NotConnected />
-            )}
-        
-        </div>
-    )
-  }
+        <Box flexGrow={1} minHeight="100vh" display="flex" flexDirection="column">
+          {isConnected ? (
+              isAdmin ? (
+                  <IsAdmin />
+              ) : ( 
+                  <NotAdmin />
+              )
+          ) : (
+              <NotConnected />
+          )}
+        </Box>
+      )
+    }
 
 export default Admin

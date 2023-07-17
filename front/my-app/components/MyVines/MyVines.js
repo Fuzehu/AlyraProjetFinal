@@ -4,6 +4,9 @@ import React from 'react'
 import MyVinesContent from './MyVinesContent'
 import NotConnected from '../NotConnected/NotConnected'
 
+//CHAKRA UI
+import { Box, Flex, Text } from '@chakra-ui/react'
+
 // WAGMI
 import { useAccount } from 'wagmi';
 
@@ -13,9 +16,9 @@ const MyVines = () => {
     const { isConnected } = useAccount()
 
     return (
-        <div>
-          {isConnected ? <MyVinesContent /> : <NotConnected />}
-        </div>
+        <Box flexGrow={1} minHeight="100vh" display="flex" flexDirection="column">
+            {isConnected ? <MyVinesContent /> : <NotConnected />}
+        </Box>
     )
 }
 

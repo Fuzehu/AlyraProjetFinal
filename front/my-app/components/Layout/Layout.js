@@ -2,20 +2,18 @@
 
 import Header from '../Header/Header'
 import Footer from '../Footer/Footer'
-import Admin from '../Admin/Admin'
-import Index from '../Index/Index'
-import MyVines from '../MyVines/MyVines'
-import StakingPools from '../StakingPools/StakingPools'
-
-import { useRouter } from 'next/router'
-import { Flex } from '@chakra-ui/react'
+import { Box, Flex } from '@chakra-ui/react'
 
 const Layout = ({ children  }) => {
 
     return (
-        <Flex direction="column" justifyContent="center">
+        <Flex direction="column" minHeight="100vh">
             <Header />
-                { children }
+            <Flex direction="column" flexGrow="1">
+                <Box bg="lavenderblush" p={5} minHeight="100%">
+                    { children }
+                </Box>
+            </Flex>
             <Footer />
         </Flex>
     )

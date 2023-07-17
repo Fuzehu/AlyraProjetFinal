@@ -9,18 +9,18 @@ const Header = () => {
     <Flex
       justifyContent="space-between"
       alignItems="center"
-      p="2rem"
+      p="1rem"
+      bg="MediumPurple"
+      color="white"
     >
-      <Text>Mes Ceps de Vigne(logo)</Text>
-
-      <Box display="flex" justifyContent="space-between" width="50%">
-        <Link href="/">Index</Link>
-        <Link href="myVinesTokens">My Vines</Link>
-        <Link href="/staking">Staking Pools</Link>
-        <Link href="/admin">Admin Panel</Link>
+      <Box display="flex" fontWeight="bold">
+        <ChakraLink as={Link} href="/" fontSize="2xl" m={4}>Index</ChakraLink>
+        <ChakraLink as={Link} href="myVinesTokens" fontSize="2xl" m={4}>My Vines</ChakraLink>
+        <ChakraLink as={Link} href="/staking" fontSize="2xl" m={4}>Staking Pools</ChakraLink>
+        <ChakraLink as={Link} href="/admin" fontSize="2xl" m={4}>Admin Panel</ChakraLink>
       </Box>
 
-      <ConnectButton />
+      <ConnectButton bg="slateblue" color="white" />
     </Flex>
   )
 }

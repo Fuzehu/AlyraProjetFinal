@@ -1,4 +1,5 @@
 "use client"
+
 import { Flex, Text } from '@chakra-ui/react'
 
 const Footer = () => {
@@ -7,6 +8,8 @@ const Footer = () => {
         p="2rem"
         justifyContent="center"
         alignItems="center"
+        bg="MediumPurple"
+        color="white"
     >
         <Text>All rights reserved &copy; MCDV {new Date().getFullYear()}</Text>
     </Flex>
