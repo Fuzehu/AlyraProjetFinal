@@ -29,7 +29,7 @@ const Header = () => {
         </NextLink>
 
         <NextLink href="/admin" passHref>
-          <ChakraLink>Admin</ChakraLink>
+          <ChakraLink>Admin Panel</ChakraLink>
         </NextLink>
       </Box>
 
