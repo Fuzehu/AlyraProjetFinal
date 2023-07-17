@@ -55,6 +55,17 @@ describe('DiscountToken', function () {
       );
     });
 
+    it('should revert if trying to add an existing admin again', async function() {
+      await discountToken.connect(owner).addAdminRights(user1.address);
+      await expect(discountToken.connect(owner).addAdminRights(user1.address))
+          .to.be.revertedWith('Address is already an admin');
+    });
+
+    it('should revert if trying to revoke a non-admin', async function() {
+        await expect(discountToken.connect(owner).revokeAdminRights(user2.address))
+            .to.be.revertedWith('Address is not an admin');
+    });
+
     it('should emit AdminRightsGranted event correctly when a new admin is added', async function () {
       await expect(discountToken.connect(owner).addAdminRights(user1))
         .to.emit(discountToken, 'AdminRightsGranted')

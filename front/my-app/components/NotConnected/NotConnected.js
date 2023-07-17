@@ -18,7 +18,7 @@ const NotConnected = () => {
                 <AlertDialogOverlay>
                     <AlertDialogContent>
                         <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                            Connection required
+                            WEB3 Provider Connection Required
                         </AlertDialogHeader>
 
                         <AlertDialogBody>

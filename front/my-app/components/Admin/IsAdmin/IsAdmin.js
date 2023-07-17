@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { Menu, MenuButton, Button, MenuList, MenuItem, Box, Flex, Text } from '@chakra-ui/react'
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import ERC1155Admin from './Features/ERC1155Admin'
-import ERC20Admin from './Features/ERC20Admin'
+import ERC20 from './Features/ERC20'
 import StakingPoolId1Admin from './Features/StakingPoolId1Admin'
 import ContractsLogs from './Features/ContractsLogs'
 
@@ -16,7 +16,7 @@ const IsAdmin = () => {
             case 'Tokenize Admin = ERC1155':
                 return <ERC1155Admin />;
             case 'DiscountToken Admin = ERC20':
-                return <ERC20Admin />;
+                return <ERC20 />;
             case 'Staking Pool ID1 Admin':
                 return <StakingPoolId1Admin />;
             case 'Contracts Logs':
@@ -35,9 +35,9 @@ const IsAdmin = () => {
                         {selectedOption}
                     </MenuButton>
                     <MenuList>
-                        <MenuItem onClick={() => setSelectedOption('Tokenize Admin = ERC1155')}>Tokenize Admin = ERC1155</MenuItem>
-                        <MenuItem onClick={() => setSelectedOption('DiscountToken Admin = ERC20')}>DiscountToken Admin = ERC20</MenuItem>
-                        <MenuItem onClick={() => setSelectedOption('Staking Pool ID1 Admin')}>Staking Pool ID1 Admin</MenuItem>
+                        <MenuItem onClick={() => setSelectedOption('Tokenize Admin = ERC1155')}>Tokenize = ERC1155</MenuItem>
+                        <MenuItem onClick={() => setSelectedOption('DiscountToken Admin = ERC20')}>DiscountToken = ERC20</MenuItem>
+                        <MenuItem onClick={() => setSelectedOption('Staking Pool ID1 Admin')}>Staking Pool ID1</MenuItem>
                         <MenuItem onClick={() => setSelectedOption('Contracts Logs')}>Contracts Logs</MenuItem>
                     </MenuList>
                 </Menu>
