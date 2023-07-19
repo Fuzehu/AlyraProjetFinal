@@ -9,11 +9,5 @@ export default function Home() {
         <Layout>
             <Index />
         </Layout>
-        /*<RootLayout>
-            <Layout>
-                <Body />
-            </Layout>
-        </RootLayout>
-        */
     )
 }

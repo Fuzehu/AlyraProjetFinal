@@ -1,7 +1,7 @@
 "use client"
 
 import React from 'react'
-import StakingPoolsContent from './StakingPoolsContent';
+import StakingPoolID1 from './StakingPoolsID1';
 import NotConnected from '../NotConnected/NotConnected'
 
 //CHAKRA UI
@@ -17,7 +17,7 @@ const MyVines = () => {
 
     return (
         <Box flexGrow={1} minHeight="100vh" display="flex" flexDirection="column">
-            {isConnected ? <StakingPoolsContent /> : <NotConnected />}
+            {isConnected ? <StakingPoolID1 /> : <NotConnected />}
         </Box>
     )
 }

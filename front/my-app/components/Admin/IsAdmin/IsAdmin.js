@@ -1,12 +1,11 @@
 "use client"
 
 import React, { useState } from 'react'
-import { Menu, MenuButton, Button, MenuList, MenuItem, Box, Flex, Text } from '@chakra-ui/react'
+import { Menu, MenuButton, Button, MenuList, MenuItem, Box, Heading, Flex, Text } from '@chakra-ui/react'
 import { ChevronDownIcon } from '@chakra-ui/icons'
-import ERC1155Admin from './Features/ERC1155Admin'
+import ERC1155 from './Features/ERC1155'
 import ERC20 from './Features/ERC20'
 import StakingPoolId1Admin from './Features/StakingPoolId1Admin'
-import ContractsLogs from './Features/ContractsLogs'
 
 const IsAdmin = () => {
     const [selectedOption, setSelectedOption] = useState('Functionality of your choice');
@@ -14,34 +13,35 @@ const IsAdmin = () => {
     const renderComponent = () => {
         switch(selectedOption) {
             case 'Tokenize Admin = ERC1155':
-                return <ERC1155Admin />;
+                return <ERC1155 />;
             case 'DiscountToken Admin = ERC20':
                 return <ERC20 />;
             case 'Staking Pool ID1 Admin':
                 return <StakingPoolId1Admin />;
-            case 'Contracts Logs':
-                return <ContractsLogs />;
             default:
                 return null;
         }
     }
 
     return (
-        <Box flexGrow={1}>
-            <Flex alignItems="center" mb={3}>
-                <Text fontSize="xl" color="darkslateblue" ml="2em">Select the Admin functionalities you want to access:</Text>
-                <Menu>
-                    <MenuButton as={Button} rightIcon={<ChevronDownIcon />} bg="slateblue" color="white" ml="2em">
-                        {selectedOption}
-                    </MenuButton>
-                    <MenuList>
-                        <MenuItem onClick={() => setSelectedOption('Tokenize Admin = ERC1155')}>Tokenize = ERC1155</MenuItem>
-                        <MenuItem onClick={() => setSelectedOption('DiscountToken Admin = ERC20')}>DiscountToken = ERC20</MenuItem>
-                        <MenuItem onClick={() => setSelectedOption('Staking Pool ID1 Admin')}>Staking Pool ID1</MenuItem>
-                        <MenuItem onClick={() => setSelectedOption('Contracts Logs')}>Contracts Logs</MenuItem>
-                    </MenuList>
-                </Menu>
-            </Flex>
+        <Box flexGrow={1} p="3em">
+            <Heading fontSize="2xl" color="darkslateblue" ml="1em" mt="1em">Welcome to the Admin page!</Heading>
+            <Text fontSize="lg" color="darkslateblue" ml="1em" mb="1em">Here you can manage different aspects from the contracts used in the DAPP, such as Tokenization, Discount Tokens and the Staking Pool Management. Choose a functionality from the dropdown below to proceed.</Text>
+            <Box bg="darkslateblue" p={5} borderRadius="lg" boxShadow="md" mb={5}>
+                <Flex alignItems="center" mb={3}>
+                    <Text fontSize="xl" color="white" ml="1em">Select the Admin functionalities you want to access :</Text>
+                    <Menu>
+                        <MenuButton as={Button} rightIcon={<ChevronDownIcon />} bg="white" color="darkslateblue" ml="1em">
+                            {selectedOption}
+                        </MenuButton>
+                        <MenuList color="darkslateblue" bg="lightgray">
+                            <MenuItem onClick={() => setSelectedOption('Tokenize Admin = ERC1155')}>Tokenize = ERC1155</MenuItem>
+                            <MenuItem onClick={() => setSelectedOption('DiscountToken Admin = ERC20')}>DiscountToken = ERC20</MenuItem>
+                            <MenuItem onClick={() => setSelectedOption('Staking Pool ID1 Admin')}>Staking Pool ID1</MenuItem>
+                        </MenuList>
+                    </Menu>
+                </Flex>
+            </Box>
             {renderComponent()}
         </Box>
     )

@@ -8,7 +8,7 @@ const Footer = () => {
         p="2rem"
         justifyContent="center"
         alignItems="center"
-        bg="MediumPurple"
+        bg="darkslateblue"
         color="white"
     >
         <Text>All rights reserved &copy; MCDV {new Date().getFullYear()}</Text>

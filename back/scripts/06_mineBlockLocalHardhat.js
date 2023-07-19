@@ -7,6 +7,5 @@ async function mineBlocks(numBlocks) {
 }
 
 (async () => {
-  // Utilisation : miner 100 blocs consécutifs
   await mineBlocks(100);
 })();

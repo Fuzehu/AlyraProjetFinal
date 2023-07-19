@@ -10,7 +10,7 @@ const Header = () => {
       justifyContent="space-between"
       alignItems="center"
       p="1rem"
-      bg="MediumPurple"
+      bg="darkslateblue"
       color="white"
     >
       <Box display="flex" fontWeight="bold">
