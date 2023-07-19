@@ -96,7 +96,6 @@ contract StakingERC1155Id1 is ERC1155Receiver, Ownable, DiscountToken, Reentranc
 
     /**
      * @notice Allows a user to stake ERC1155 tokens in the Staking Pool
-     * @param _tokenId The ERC1155 specific token ID to be staked
      * @param _amount The amount of tokens to be staked
      * @dev Requires that the amount to be staked is greater than 0
      * @dev Requires that the token ID is 1, as only tokens with ID 1 can be staked in this Staking Pool
@@ -105,8 +104,9 @@ contract StakingERC1155Id1 is ERC1155Receiver, Ownable, DiscountToken, Reentranc
      * @dev Emits a Staked returning the unstaked token ID and the amount of tokens staked by the given staker address 
      * @dev This function is non-reentrant to prevent reentrant calls during the staking process
      */
-    function stakeERC1155ID1(uint24 _tokenId, uint24 _amount) external nonReentrant {
+    function stakeERC1155ID1(uint24 _amount) external nonReentrant {
         require(_amount > 0, "StakingContract: Invalid amount");
+        uint24 _tokenId = 1;
         require(_tokenId == 1, "StakingContract: Only tokens with ID 1 can be staked in this Staking Pool");
 
         StakedTokenInfo storage tokenInfo = stakedTokens[msg.sender];
@@ -157,7 +157,7 @@ contract StakingERC1155Id1 is ERC1155Receiver, Ownable, DiscountToken, Reentranc
 
         erc1155Contract.safeTransferFrom(address(this), msg.sender, tokenInfo.tokenId, _unstakeAmount, "");
 
-        // Update the stakedTokens information by removing the staker's data.
+        // Update the stakedTokens information by removing the staker's unstaked tokens.
         tokenInfo.stakedAmount -= _unstakeAmount;
 
         emit Unstaked(msg.sender, tokenInfo.tokenId, _unstakeAmount);

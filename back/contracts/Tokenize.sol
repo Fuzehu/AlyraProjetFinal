@@ -74,10 +74,7 @@ contract Tokenize is ERC1155URIStorage, Ownable {
         _setURI(newTokenId, _tokenURI);
         
         _mint(_to, newTokenId, _totalSupply, "");
-
         emit TokenMinted(newTokenId, _tokenName, _totalSupply, _tokenURI);
     }
 
 }
-
-

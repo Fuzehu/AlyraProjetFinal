@@ -26,6 +26,7 @@ contract DiscountToken is ERC20, Ownable {
 
     event AdminRightsGranted(address indexed newAdminAddress);
     event AdminRightsRevoked(address indexed adminAddress);
+    event TokensMinted(address indexed receiver, uint amount);
 
     /**
      * @notice Grants admin rights to the specified address
@@ -62,6 +63,7 @@ contract DiscountToken is ERC20, Ownable {
         require (_amount > 0, "Mint amount must be greater than 0");
 
         _mint(_to, _amount);
+        emit TokensMinted(_to, _amount);
     }
 
 }

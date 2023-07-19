@@ -102,5 +102,12 @@ describe('DiscountToken', function () {
         'You need to be a registered admin in order to mint this token'
       );
     });
+
+    it("should emit TokensMinted event correctly when tokens are minted", async function () {
+      await discountToken.connect(owner).addAdminRights(user1.address);
+      await expect(discountToken.connect(user1).mint(user2.address, 1000))
+        .to.emit(discountToken, 'TokensMinted')
+        .withArgs(user2.address, 1000);
+    });
   });
 });

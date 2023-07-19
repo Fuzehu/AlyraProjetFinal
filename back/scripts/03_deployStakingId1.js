@@ -9,7 +9,7 @@ async function main() {
 
   const stakingERC1155Id1 = await StakingERC1155Id1.deploy(erc1155ContractAddress, erc20ContractAddress);
 
-  console.log("StakingERC1155Id1 contract deployed at address:", StakingERC1155Id1.target);
+  console.log("StakingERC1155Id1 contract deployed at address:", stakingERC1155Id1.target);
 }
 
 main()
