@@ -35,8 +35,9 @@ contract FundRaiser is Ownable, ReentrancyGuard {
 
     uint128 public constant TICKET_PRICE = 500 ether; // drop the price to 50 on testnet deployment for tokens accessibility reseasons
     uint24 public constant MAX_TICKETS = 200;
-    uint24 public ticketsSold = 0;
     uint24 public propertyId = 1;
+    uint256 public ticketsSold = 0;
+
 
     enum WorkflowStatus { 
         Fundraising,
@@ -156,6 +157,30 @@ contract FundRaiser is Ownable, ReentrancyGuard {
         ticketOwners[msg.sender] = 0;
     }
 
+    /**
+     * @notice Function allowing a whitelisted user to request a refund of the tickets he owns
+     * @notice This function design have been chosen in order to mitigate potential security risks associated with loops
+     *         The chosen mapping structure allows us to access and manipulate individual user's data directly, which is more secure.
+     *         However each participant might have to take individual actions in order to get back its tokens and pay gas fees. 
+     * @dev User must own tickets and the Fundraising must not be completed for the refund to be processed
+     * @dev On successful refund, the amount of owned tickets is set to zero and the total sold tickets is decreased
+     * @dev It is the responsibility of the user to trigger this function
+     * @dev This function uses the ERC20 transfer function to process the refund and requires the operation to succeed
+     */
+    function requestRefund() public {
+        require(currentStatus == WorkflowStatus.Fundraising, "Fundraising is already completed");
+        require(ticketsSold < MAX_TICKETS, "All tickets have been sold");
+        require(whitelist[msg.sender], "Your address is not whitelisted");
+
+        uint256 ticketsOwned = ticketOwners[msg.sender];
+        require(ticketsOwned > 0, "You do not have any tickets");
+
+        uint256 amountToRefund = ticketsOwned * TICKET_PRICE;
+        require(acceptedToken.transfer(msg.sender, amountToRefund), "Failed to refund the tokens");
+
+        ticketOwners[msg.sender] = 0;
+        ticketsSold -= ticketsOwned;
+    }
 
 ///////////////////////////////////////////////// *-- Receive and Fallback *-- ////////////////////////////////////////////////
 
