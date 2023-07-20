@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const { ethers } = require('hardhat');
 
-describe('DiscountToken', function () {
+describe('Testing DiscountToken.sol contract', function () {
   let discountToken;
   let owner;
   let user1;

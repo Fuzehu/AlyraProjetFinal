@@ -10,7 +10,6 @@ import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
  * @author Nicolas Foti
  * @notice This contract aims to tokenize a given GFV (Groupement Foncier Viticole) into equal shares by minting a specific ERC1155 token IDs
  *         The metadata set through the URI defines the attributes of the tokenized GFV, such as legal information, unitary value, and total supply
- *         The _mintToken function have been created in a way each new FundRaiser contract can access to it after been authorized by the function authorize contract
  */
 
 
@@ -25,8 +24,6 @@ contract Tokenize is ERC1155URIStorage, Ownable {
 
     mapping (uint256 => GfvInfo) public _gfvTokens;
     bool private _initialized = false;
-
-    mapping (address => bool) public _mintTokenFunctionAuthorizedContracts;
 
     event TokenMinted(address to, uint256 tokenId, uint256 amount);
 
@@ -46,17 +43,6 @@ contract Tokenize is ERC1155URIStorage, Ownable {
     }
 
 
-    function authorizeContract(address contractAddress) external onlyOwner {
-        require(!_mintTokenFunctionAuthorizedContracts[contractAddress], "Contract is already authorized");
-        _mintTokenFunctionAuthorizedContracts[contractAddress] = true;
-    }
-
-    function revokeContract(address contractAddress) external onlyOwner {
-        require(_mintTokenFunctionAuthorizedContracts[contractAddress], "Contract is not authorized");
-        _mintTokenFunctionAuthorizedContracts[contractAddress] = false;
-    }
-
-
 ///////////////////////////////////////////////// *-- Minting Functions *-- ///////////////////////////////////////////////
 
     /**
@@ -65,10 +51,8 @@ contract Tokenize is ERC1155URIStorage, Ownable {
      * @param _tokenId ID of the token to be minted
      * @param _amount Number of tokens to mint
      */
-    function _mintToken(address _to, uint256 _tokenId, uint256 _amount) public { 
-        require(_mintTokenFunctionAuthorizedContracts[msg.sender], "Caller is not authorized");
+    function _mintToken(address _to, uint256 _tokenId, uint256 _amount) internal { 
         require(_gfvTokens[_tokenId].exists, "Token does not exist");
-
         _mint(_to, _tokenId, _amount, "");
 
         GfvInfo storage gfvInfoToUpdate = _gfvTokens[_tokenId];

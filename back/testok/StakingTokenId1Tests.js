@@ -2,7 +2,7 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
 
-describe('StakingERC1155Id1', function() {
+describe('Testing StakingERC1155Id1.sol contract', function() {
     let owner;
     let addr1;
     let addr2;
@@ -33,6 +33,11 @@ describe('StakingERC1155Id1', function() {
         await tokenize.connect(owner).setApprovalForAll(stakingERC1155Id1.target, true);
         await tokenize.connect(addr1).setApprovalForAll(stakingERC1155Id1.target, true);
         await tokenize.connect(addr2).setApprovalForAll(stakingERC1155Id1.target, true);
+
+        // Intiate GFV Struct for different tokenId
+        await tokenize.connect(owner).initGfvInfoForATokenId(1, 100, "https://mytoken.com/1", "My Token1");
+        await tokenize.connect(owner).initGfvInfoForATokenId(2, 200, "https://mytoken.com/2", "My Token2");
+        await tokenize.connect(owner).initGfvInfoForATokenId(3, 400, "https://mytoken.com/3", "My Token3");
     
         // Mint different token of different Id
         await tokenize.connect(owner).mintTokenEmergency(addr1, 1, 200);

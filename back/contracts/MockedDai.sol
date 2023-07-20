@@ -12,11 +12,11 @@ import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
     */
 
 
-contract DaiMocked is ERC20, Ownable {
+contract MockedDai is ERC20, Ownable {
 
-    constructor () ERC20('DaiMocked', 'DAI') {}
+    constructor () ERC20('MockedDai', 'DAI') {}
 
-    function mint(address _to, uint _amount) external{
+    function mint(address _to, uint _amount) external onlyOwner{
         _mint(_to, _amount);
     }
-}
+} 
