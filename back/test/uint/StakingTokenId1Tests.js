@@ -382,7 +382,6 @@ describe('Testing StakingERC1155Id1.sol contract', function() {
             expect(balance2).to.equal(200);
         });
     });
-    console.log(ethers);
 
 
     describe('Testing fallback and receive', function() {
@@ -390,7 +389,7 @@ describe('Testing StakingERC1155Id1.sol contract', function() {
             await expect(
                 addr1.sendTransaction({
                     to: stakingERC1155Id1.target,
-                    value: "1000000000000000000" // 1 Ether = 1e18 Wei
+                    value: "1000000000000000000" 
                 })
             ).to.be.revertedWith("This contract does not accept ether"); 
         });
