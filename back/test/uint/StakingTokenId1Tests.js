@@ -1,8 +1,6 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-const { expectEvent } = require('@openzeppelin/test-helpers');
-
 
 describe('StakingERC1155Id1', function() {
     let owner;
@@ -36,10 +34,10 @@ describe('StakingERC1155Id1', function() {
         await tokenize.connect(addr1).setApprovalForAll(stakingERC1155Id1.target, true);
         await tokenize.connect(addr2).setApprovalForAll(stakingERC1155Id1.target, true);
     
-        // Mint tokens with different names and URIs
-        await tokenize.connect(owner).mintToken(addr1, 200, "token1", "ipfs://tokenHashMetadata1");
-        await tokenize.connect(owner).mintToken(addr2, 500, "token2", "ipfs://tokenHashMetadata2");
-        await tokenize.connect(owner).mintToken(addr1, 1000, "token3", "ipfs://tokenHashMetadata2");
+        // Mint different token of different Id
+        await tokenize.connect(owner).mintTokenEmergency(addr1, 1, 200);
+        await tokenize.connect(owner).mintTokenEmergency(addr2, 2, 500);
+        await tokenize.connect(owner).mintTokenEmergency(addr1, 3, 1000);
 
     });
     
@@ -379,23 +377,19 @@ describe('StakingERC1155Id1', function() {
             expect(balance2).to.equal(200);
         });
     });
+    console.log(ethers);
+
 
     describe('Testing fallback and receive', function() {
         it("Should revert when trying to send Ether to the contract", async function() {
-            // Try to send Ether to the contract
             await expect(
-            addr1.sendTransaction({
-                to: stakingERC1155Id1.address,
-                value: ethers.utils.parseEther("1.0") // Sending 1 Ether
-            })
-            ).to.be.revertedWith("This contract does not accept ether"); // Expect a revert with the specified message
+                addr1.sendTransaction({
+                    to: stakingERC1155Id1.target,
+                    value: "1000000000000000000" // 1 Ether = 1e18 Wei
+                })
+            ).to.be.revertedWith("This contract does not accept ether"); 
         });
-    });  
-
-
-
-
-
+    });
 
 
 });

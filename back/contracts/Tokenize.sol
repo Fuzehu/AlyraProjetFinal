@@ -68,8 +68,6 @@ contract Tokenize is ERC1155URIStorage, Ownable {
      * @param _amount Number of tokens to mint
      */
     function mintTokenEmergency(address _to, uint256 _tokenId, uint256 _amount) external onlyOwner { 
-        require(_gfvTokens[_tokenId].totalSupply > 0, "Token does not exist");
-
         _mint(_to, _tokenId, _amount, "");
 
         GfvInfo storage gfvInfoToUpdate = _gfvTokens[_tokenId];
