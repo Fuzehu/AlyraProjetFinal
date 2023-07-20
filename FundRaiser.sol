@@ -5,6 +5,14 @@ import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 import "../node_modules/@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+    /**
+    * @title Fundraiser Contract
+    * @author Nicolas Foti
+    * @notice The Fundraiser contract operates as a platform for the sale of tickets that can be exchanged for NFT tokens that represents shares of GFV. 
+    * @notice Users can purchase tickets using specific ERC20 tokens specified at the creation of the contract. 
+    * @notice Once the fundraising is complete, ticket holders can mint a number of NFT according to the number of tickets thhey  own
+    */
+
 interface ITokenize {
     function _mintToken(address _to, uint256 _tokenId, uint256 _amount) external;
 }
@@ -12,6 +20,9 @@ interface ITokenize {
 
 contract FundRaiser is Ownable, ReentrancyGuard {
 
+    /**
+     * @dev Address of the token accepted for purchasing tickets
+     */
     IERC20 public acceptedToken;
     ITokenize public tokenize;
 
@@ -34,22 +45,48 @@ contract FundRaiser is Ownable, ReentrancyGuard {
     mapping(address => uint256) public ticketOwners;
     mapping(address => bool) public whitelist;
 
+    /**
+     * @notice For unit testing purpose, we create a DAI mocked contracts
+     *         For Sepolia deployment the token will be DAI coming from Aave faucet with the given Sepolia Address 
+     *         " 0xAC164473923FDF6Fc60C655b5425169d1bB3429A "
+     * @dev Contract constructor that sets the token to be accepted for buying tickets
+     * @param _acceptedToken Address of the ERC20 token to be accepted
+     */
     constructor(IERC20 _acceptedToken, ITokenize _tokenize) {
         acceptedToken = _acceptedToken;
         tokenize = _tokenize;
         currentStatus = WorkflowStatus.Fundraising;
     }
 
+///////////////////////////////////////////////// *-- Whitelist Management *-- ///////////////////////////////////////////////
+
+    /**
+     * @dev Function to whitelist an address, allowing it to buy tickets
+     * @dev This function can only be called by the contract owner
+     * @param _address Address to be whitelisted.
+     */
     function addToWhitelist(address _address) public onlyOwner {
         require(!whitelist[_address], "The address is already whitelisted");
         whitelist[_address] = true;
     }
 
+    /**
+     * @dev Function to remove an address from the whitelist
+     * @dev This function can only be called by the contract owner
+     * @param _address Address to be removed from the whitelist
+     */
     function removeFromWhitelist(address _address) public onlyOwner {
         require(whitelist[_address], "The address is not currently whitelisted");
         whitelist[_address] = false;
     }
 
+
+///////////////////////////////////////////////// *-- Users interactions *-- ///////////////////////////////////////////////
+
+    /**
+     * @dev Function allowing whitelisted addresses to buy tickets.
+     * @param numberOfTickets The number of tickets to buy.
+     */
     function buyTicket(uint24 numberOfTickets) public nonReentrant {
         require(currentStatus == WorkflowStatus.Fundraising, "Fundraising ended");
         require(whitelist[msg.sender], "Your address is not whitelisted");
@@ -64,6 +101,9 @@ contract FundRaiser is Ownable, ReentrancyGuard {
         ticketsSold += numberOfTickets;
     }
 
+    /**
+     * @dev Function allowing ticket owners to mint tokens in exchange for the amount of owned "tickets"
+     */
     function claimTokens() public nonReentrant {
         require(currentStatus == WorkflowStatus.MintingLive, "The token mint is not yet available");
         require(whitelist[msg.sender], "Your address is not whitelisted");
@@ -74,6 +114,14 @@ contract FundRaiser is Ownable, ReentrancyGuard {
         ticketOwners[msg.sender] = 0;
     }
 
+
+///////////////////////////////////////////////// *-- WorflowStatus Change *-- ///////////////////////////////////////////////
+
+    /**
+    * @dev Function to end the fundraising event and transfer collected tokens to the owner address
+    * @dev This function can only be called by the contract owner
+    * @dev emit StatusChanged event 
+    */
     function endFundraiser() public onlyOwner {
         require(currentStatus == WorkflowStatus.Fundraising, "Fundraising is already completed");
         require(ticketsSold >= MAX_TICKETS, "Fundraising not finished");
@@ -86,11 +134,19 @@ contract FundRaiser is Ownable, ReentrancyGuard {
         require(acceptedToken.transfer(owner(), balance), "Failed to transfer the tokens");
     }
 
+    /**
+    * @dev Function to start minting
+    * @dev This function can only be called by the contract owner
+    * @dev emit StatusChanged event 
+    */
     function startMinting() public onlyOwner {
         require(currentStatus == WorkflowStatus.FundraisingComplete, "Fundraising not finished yet");
         currentStatus = WorkflowStatus.MintingLive;
         emit StatusChanged(currentStatus);
     }
+
+
+///////////////////////////////////////////////// *-- Receive and Fallback *-- ////////////////////////////////////////////////
 
     receive() external payable {
         revert("This contract does not accept ether");

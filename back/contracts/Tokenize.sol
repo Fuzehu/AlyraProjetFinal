@@ -15,6 +15,7 @@ import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 
 
 contract Tokenize is ERC1155URIStorage, Ownable {
+
     struct GfvInfo {
         bool exists;
         string tokenName;
@@ -32,6 +33,9 @@ contract Tokenize is ERC1155URIStorage, Ownable {
 
     constructor() ERC1155("") {}
 
+
+////////////////////////////// *-- Initialize the GfvInfo struct with GENESIS as tokenId 0 *-- ////////////////////////////
+
     /**
      * @notice Initializes the contract by minting the GENESIS token and assigning it to the owner
      *         This function can only be called once and only by the contract owner
@@ -46,11 +50,23 @@ contract Tokenize is ERC1155URIStorage, Ownable {
     }
 
 
+/////////////////////////////// *-- Authorization Management over the _mintToken function *-- /////////////////////////////
+
+    /**
+     * @notice Authorizes a contract to call the _mintToken function
+     *         This function can only be called by the contract owner
+     * @param contractAddress Address of the contract to authorize
+     */
     function authorizeContract(address contractAddress) external onlyOwner {
         require(!_mintTokenFunctionAuthorizedContracts[contractAddress], "Contract is already authorized");
         _mintTokenFunctionAuthorizedContracts[contractAddress] = true;
     }
 
+    /**
+     * @notice Revokes the authorization given to a contract to call the _mintToken function
+     *         This function can only be called by the contract owner
+     * @param contractAddress Address of the contract to revoke authorization from
+     */
     function revokeContract(address contractAddress) external onlyOwner {
         require(_mintTokenFunctionAuthorizedContracts[contractAddress], "Contract is not authorized");
         _mintTokenFunctionAuthorizedContracts[contractAddress] = false;
@@ -60,7 +76,9 @@ contract Tokenize is ERC1155URIStorage, Ownable {
 ///////////////////////////////////////////////// *-- Minting Functions *-- ///////////////////////////////////////////////
 
     /**
-     * @notice Internal function to mint token that will be used in FundRaiser.sol
+     * @notice This function mints new tokens and assigns them to a specified address
+     *         This function is intended to be called by the FundRaiser contract, which needs to be previously authorized
+     * @dev Upon minting, the total supply of the token identified by _tokenId is increased accordingly
      * @param _to Address to which the tokens will be minted
      * @param _tokenId ID of the token to be minted
      * @param _amount Number of tokens to mint

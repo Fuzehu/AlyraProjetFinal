@@ -22,16 +22,11 @@ describe('Testing FundRaiser.sol contract', function() {
           MockedDai.deploy()
         ]);
 
+        // Initialize FundRaiser SC from MockedDai and Tokenize Addresses
         const FundRaiser = await ethers.getContractFactory("FundRaiser");
         fundRaiser = await FundRaiser.deploy(mockedDai.target, tokenize.target);
     
-/*
-        // Set approval for StakingERC1155Id1 on Tokenize contract
-        await tokenize.connect(owner).setApprovalForAll(fundRaiser.target, true);
-        await tokenize.connect(addr1).setApprovalForAll(fundRaiser.target, true);
-        await tokenize.connect(addr2).setApprovalForAll(fundRaiser.target, true);
-*/
-        // Intiate GFV Struct for different tokenId
+        // Intialize GFV Struct for different tokenId
         await tokenize.connect(owner).initGfvInfoForATokenId(1, 100, "https://mytoken.com/1", "My Token1");
         await tokenize.connect(owner).initGfvInfoForATokenId(2, 200, "https://mytoken.com/2", "My Token2");
         await tokenize.connect(owner).initGfvInfoForATokenId(3, 400, "https://mytoken.com/3", "My Token3");

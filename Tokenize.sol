@@ -40,7 +40,7 @@ contract Tokenize is ERC1155URIStorage, Ownable {
         _mintTokenFunctionAuthorizedContracts[contractAddress] = false;
     }
 
-    function _mintToken(address _to, uint256 _tokenId, uint256 _amount) public { 
+    function mintToken(address _to, uint256 _tokenId, uint256 _amount) public { 
         require(_mintTokenFunctionAuthorizedContracts[msg.sender], "Caller is not authorized");
         require(_gfvTokens[_tokenId].exists, "Token does not exist");
 
