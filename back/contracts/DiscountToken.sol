@@ -19,7 +19,7 @@ contract DiscountToken is ERC20, Ownable {
 
 
     /// @dev Initializes the contract by setting the token name and symbol
-    constructor () ERC20('MCdVDiscountToken', 'MDT') {}
+    constructor () ERC20('MSVDiscountToken', 'MDT') {}
 
 
     mapping (address => bool) public isAdmin;

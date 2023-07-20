@@ -131,7 +131,6 @@ describe('StakingERC1155Id1', function() {
             await stakingERC1155Id1.connect(addr1).stakeERC1155ID1(initialStakedAmount);
                 
             const stakedTokensInfo = await stakingERC1155Id1.stakedTokens(addr1);
-            expect(stakedTokensInfo.tokenId).to.equal(1);
             expect(stakedTokensInfo.stakedAmount).to.equal(initialStakedAmount);
         
             /*Check if the stakingStartTime is not less than blockTimestampBeforeStaking

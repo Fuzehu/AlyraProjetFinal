@@ -17,13 +17,12 @@ import "./Tokenize.sol";
  */
 
 
-contract StakingERC1155Id1 is ERC1155Receiver, Ownable, DiscountToken, ReentrancyGuard {
+contract StakingERC1155Id1 is ERC1155Receiver, Ownable, ReentrancyGuard {
     Tokenize public erc1155Contract;
     DiscountToken public erc20Contract;
 
 
     struct StakedTokenInfo {
-        uint24 tokenId;
         uint24 stakedAmount;
         uint256 stakingStartTime;
     }
@@ -106,9 +105,7 @@ contract StakingERC1155Id1 is ERC1155Receiver, Ownable, DiscountToken, Reentranc
      */
     function stakeERC1155ID1(uint24 _amount) external nonReentrant {
         require(_amount > 0, "StakingContract: Invalid amount");
-        uint24 _tokenId = 1;
-        require(_tokenId == 1, "StakingContract: Only tokens with ID 1 can be staked in this Staking Pool");
-
+        uint8 _tokenId = 1;
         StakedTokenInfo storage tokenInfo = stakedTokens[msg.sender];
 
         if (tokenInfo.stakedAmount > 0) {
@@ -117,7 +114,6 @@ contract StakingERC1155Id1 is ERC1155Receiver, Ownable, DiscountToken, Reentranc
 
         erc1155Contract.safeTransferFrom(msg.sender, address(this), _tokenId, _amount, "");
 
-        tokenInfo.tokenId = _tokenId;
         tokenInfo.stakedAmount += _amount;
         tokenInfo.stakingStartTime = block.timestamp;
 
@@ -147,6 +143,7 @@ contract StakingERC1155Id1 is ERC1155Receiver, Ownable, DiscountToken, Reentranc
      * @dev This function is non-reentrant to prevent reentrant calls during the unstaking process
      */
     function unstake(uint24 _unstakeAmount) external nonReentrant {
+        uint8 _tokenId = 1;
         require(_unstakeAmount > 0, "StakingContract: Invalid unstaked amount");
 
         StakedTokenInfo storage tokenInfo = stakedTokens[msg.sender];
@@ -155,12 +152,12 @@ contract StakingERC1155Id1 is ERC1155Receiver, Ownable, DiscountToken, Reentranc
         // Claim rewards before unstaking as it may cause a loss of rewards earned
         _claimRewards(msg.sender); 
 
-        erc1155Contract.safeTransferFrom(address(this), msg.sender, tokenInfo.tokenId, _unstakeAmount, "");
+        erc1155Contract.safeTransferFrom(address(this), msg.sender, _tokenId, _unstakeAmount, "");
 
         // Update the stakedTokens information by removing the staker's unstaked tokens.
         tokenInfo.stakedAmount -= _unstakeAmount;
 
-        emit Unstaked(msg.sender, tokenInfo.tokenId, _unstakeAmount);
+        emit Unstaked(msg.sender, _tokenId, _unstakeAmount);
     }
 
 

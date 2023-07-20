@@ -20,7 +20,7 @@ describe('DiscountToken', function () {
       const name = await discountToken.name();
       const symbol = await discountToken.symbol();
 
-      expect(name).to.equal('MCdVDiscountToken');
+      expect(name).to.equal('MSVDiscountToken');
       expect(symbol).to.equal('MDT');
     });
   });
