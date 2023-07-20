@@ -219,7 +219,12 @@ contract StakingERC1155Id1 is ERC1155Receiver, Ownable, ReentrancyGuard {
 
 ///////////////////////////////////////////////// *-- Receive and Fallback *-- ////////////////////////////////////////////////
 
-    receive() external payable {} 
-    fallback() external payable {}
+    receive() external payable {
+        revert("This contract does not accept ether");
+    } 
+
+    fallback() external payable {
+        revert("This contract does not accept ether");
+    }
 
 }

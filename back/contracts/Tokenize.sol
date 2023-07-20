@@ -3,7 +3,6 @@ pragma solidity ^0.8.18;
 
 import "../node_modules/@openzeppelin/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol";
 import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
-import "../node_modules/@openzeppelin/contracts/utils/Counters.sol";
 
 
 /**
@@ -15,66 +14,111 @@ import "../node_modules/@openzeppelin/contracts/utils/Counters.sol";
 
 
 contract Tokenize is ERC1155URIStorage, Ownable {
-    using Counters for Counters.Counter;
-    Counters.Counter private _tokenIds;
-
-
-    struct GFV {
+    struct GfvInfo {
         string tokenName;
-        uint256 tokenId; // can't set lower uint as we're using the Counters library
-        uint16 totalSupply;
+        uint totalSupply;
+        uint sharePrice;
         string tokenURI;
     }
 
-
-    GFV[] public _gfvTokens;
-
+    mapping (uint256 => GfvInfo) public _gfvTokens;
     bool private _initialized = false;
 
-    /// event emitted when a new token is minted
-    event TokenMinted(uint256 indexed tokenId, string tokenName, uint16 totalSupply, string uri); 
-
+    event TokenMinted(address to, uint256 tokenId, uint256 amount);
 
     constructor() ERC1155("") {}
 
-    
     /**
-     * @notice Initialize the contract by minting the GENESIS token and assigning it to the a given address (owner)
-     *         This function can only be called by the contract owner
+     * @notice Initializes the contract by minting the GENESIS token and assigning it to the owner
+     *         This function can only be called once and only by the contract owner
      * @dev This function represents an Easter egg related to blockchain concepts, as the first token minted is called "GENESIS" similar to the first block of a blockchain
-     *      Additionally, the "GENESIS" token will be stored at index 0 of the _gfvTokens array, while the next token minted; tokenId 1 will get the index 1 : this arrangement follows a logical pattern
+     *      Additionally, the "GENESIS" token will be given the TokenId 0
      */
     function init() external onlyOwner {
         require(!_initialized, "Init has already been called");
-        _gfvTokens.push(GFV("GENESIS", 0, 1, ""));
-        _mint(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266, 0, 1, "");
+        _gfvTokens[0] = GfvInfo("GENESIS", 1, 0, "");
+        _mint(msg.sender, 0, 1, "");
         _initialized = true;
-    } 
-    
-
-    /**
-     * @notice Mint a new ERC1155 token with a specific tokenId and assign it to the specified address
-     *         This function can only be called by the contract owner
-     * @param _to The address to assign the minted token to
-     * @param _totalSupply The total supply of the minted token
-     * @param _tokenName The name of the minted token
-     * @param _tokenURI The URI of the metadata for the minted token
-     * @dev Generate a new ID for the token that is to be minted
-     * @dev Add the new GFV object generated through the token mint to the GFV array
-     * @dev Set the unique URI for the new token that is to be minted
-     * @dev Mint the token with the correct information
-     * @dev Emit a TokenMinted event with the tokenId of the minted token, its token name, total supply, and the URI
-     */
-    function mintToken(address _to, uint16 _totalSupply, string memory _tokenName, string memory _tokenURI) external onlyOwner { 
-        _tokenIds.increment();
-        uint256 newTokenId = _tokenIds.current();
-
-        _gfvTokens.push(GFV(_tokenName, newTokenId, _totalSupply, _tokenURI));
-
-        _setURI(newTokenId, _tokenURI);
-        
-        _mint(_to, newTokenId, _totalSupply, "");
-        emit TokenMinted(newTokenId, _tokenName, _totalSupply, _tokenURI);
     }
 
+    /**
+     * @notice Internal function to mint token that will be used in FundRaiser.sol
+     * @param _to Address to which the tokens will be minted
+     * @param _tokenId ID of the token to be minted
+     * @param _amount Number of tokens to mint
+     */
+    function _mintToken(address _to, uint256 _tokenId, uint256 _amount) internal { 
+        _mint(_to, _tokenId, _amount, "");
+
+        GfvInfo storage gfvInfoToUpdate = _gfvTokens[_tokenId];
+        gfvInfoToUpdate.totalSupply += _amount;
+
+        emit TokenMinted(_to, _tokenId, _amount);
+    }
+
+    /**
+     * @notice Owner can mint token of a spefic tokenID send it to a given address
+     *         This function may be useful if we later add a function allowing to freeze a specific token, then allowing 
+     *         us to remint the fronzen token without really impacting the effectivetotal supply for an address that 
+     *         has violated rules, especially in cases where a token owner has transferred tokens to a non-KYC verified address 
+     *         This function can only be called by the contract owner
+     * @dev This function should be used cautiously as it can affect the tokenomics
+     * @param _to Address to which the tokens will be minted
+     * @param _tokenId ID of the token to be minted
+     * @param _amount Number of tokens to mint
+     */
+    function mintTokenEmergency(address _to, uint256 _tokenId, uint256 _amount) external onlyOwner { 
+        require(_gfvTokens[_tokenId].totalSupply > 0, "Token does not exist");
+
+        _mint(_to, _tokenId, _amount, "");
+
+        GfvInfo storage gfvInfoToUpdate = _gfvTokens[_tokenId];
+        gfvInfoToUpdate.totalSupply += _amount;
+
+        emit TokenMinted(_to, _tokenId, _amount);
+    }
+
+    /**
+     * @notice Initializes the GFV information for a specific token ID
+     *         This function can only be called by the contract owner
+     * @param _tokenId ID of the token
+     * @param _sharePrice Price of a token share
+     * @param _uri URI of the token
+     * @param _tokenName Name of the token
+     */
+    function initGfvInfoForATokenId(uint _tokenId, uint _sharePrice, string calldata _uri, string calldata _tokenName) external onlyOwner {
+        GfvInfo storage gfvInfoToUpdate = _gfvTokens[_tokenId];
+        gfvInfoToUpdate.sharePrice = _sharePrice;
+        gfvInfoToUpdate.tokenURI = _uri;
+        gfvInfoToUpdate.tokenName = _tokenName;
+    }
+
+    /**
+     * @notice Updates the share price and URI of a specific token
+     *         This function can only be called by the contract owner
+     * @param _tokenId ID of the token
+     * @param _newSharePrice New price of a share of the token
+     * @param _newURI New URI of the token
+     */
+    function updateSharePriceAndUri(uint256 _tokenId, uint _newSharePrice, string memory _newURI) external onlyOwner {
+        require(_gfvTokens[_tokenId].totalSupply > 0, "Token does not exist");
+
+        GfvInfo storage gfvInfoToUpdate = _gfvTokens[_tokenId];
+        gfvInfoToUpdate.sharePrice = _newSharePrice;
+        gfvInfoToUpdate.tokenURI = _newURI;
+    }
+
+    /**
+     * @notice Updates the URI of a specific token
+     *         This function can only be called by the contract owner
+     * @param _tokenId ID of the token
+     * @param _newURI New URI of the token
+     */
+    function updateTokenURI(uint256 _tokenId, string memory _newURI) external onlyOwner {
+        require(_gfvTokens[_tokenId].totalSupply > 0, "Token does not exist");
+        _setURI(_tokenId, _newURI);
+        
+        GfvInfo storage gfvInfoToUpdate = _gfvTokens[_tokenId];
+        gfvInfoToUpdate.tokenURI = _newURI;
+    }
 }

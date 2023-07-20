@@ -268,120 +268,129 @@ describe('StakingERC1155Id1', function() {
             const currentStakingStartTime = (await stakingERC1155Id1.stakedTokens(addr1.address)).stakingStartTime;
             expect(currentStakingStartTime).to.be.gt(previousStakingStartTime);
         });
+    });
 
 
-        describe('Testing getPendingRewards function', function() {
+    describe('Testing getPendingRewards function', function() {
 
-            it('getPendingRewards should return correct pending rewards after staking', async function() {
-                const stakeAmount = 1;
-                await stakingERC1155Id1.connect(addr1).stakeERC1155ID1(stakeAmount);
-                await network.provider.send("evm_mine");
-            
-                // Simulate 1 hour of block time.
-                const oneHourInSeconds = 60 * 60; // 60 minutes * 60 seconds
-                await network.provider.send("evm_increaseTime", [oneHourInSeconds]);
-                await network.provider.send("evm_mine");
-            
-                const rewardsRatePerSecond = await stakingERC1155Id1.rewardsRatePerSecond();
-                const rewardsRatePerSecondNum = Number(rewardsRatePerSecond.toString());
-                const expectedRewards = stakeAmount * rewardsRatePerSecondNum * oneHourInSeconds;
-                const pendingRewards = await stakingERC1155Id1.connect(addr1).getPendingRewards();
-                const pendingRewardsNum = Number(pendingRewards.toString());
-            
-                // Verify the pending rewards with a tolerance of 1%
-                const tolerance = 0.01; // 1%
-                const lowerBound = expectedRewards * (1 - tolerance);
-                const upperBound = expectedRewards * (1 + tolerance);
-            
-                expect(pendingRewardsNum).to.be.within(lowerBound, upperBound);
-            });
-            
+        it('getPendingRewards should return correct pending rewards after staking', async function() {
+            const stakeAmount = 1;
+            await stakingERC1155Id1.connect(addr1).stakeERC1155ID1(stakeAmount);
+            await network.provider.send("evm_mine");
         
-            it('Should fail if no tokens staked', async function() {
-                await expect(stakingERC1155Id1.connect(addr2).getPendingRewards())
-                    .to.be.revertedWith('StakingContract: No token staked');
-            });
+            // Simulate 1 hour of block time.
+            const oneHourInSeconds = 60 * 60; // 60 minutes * 60 seconds
+            await network.provider.send("evm_increaseTime", [oneHourInSeconds]);
+            await network.provider.send("evm_mine");
+        
+            const rewardsRatePerSecond = await stakingERC1155Id1.rewardsRatePerSecond();
+            const rewardsRatePerSecondNum = Number(rewardsRatePerSecond.toString());
+            const expectedRewards = stakeAmount * rewardsRatePerSecondNum * oneHourInSeconds;
+            const pendingRewards = await stakingERC1155Id1.connect(addr1).getPendingRewards();
+            const pendingRewardsNum = Number(pendingRewards.toString());
+        
+            // Verify the pending rewards with a tolerance of 1%
+            const tolerance = 0.01; // 1%
+            const lowerBound = expectedRewards * (1 - tolerance);
+            const upperBound = expectedRewards * (1 + tolerance);
+        
+            expect(pendingRewardsNum).to.be.within(lowerBound, upperBound);
         });
-
-
-        describe('Testing getPendingRewards function', function() {
-
-            it('getStakedAmount should return correct staked amount after staking', async function() {
-                const stakeAmount = 100;
-                await stakingERC1155Id1.connect(addr1).stakeERC1155ID1(stakeAmount);
-                await network.provider.send("evm_mine");
-            
-                const stakedAmount = await stakingERC1155Id1.getStakedAmount(addr1.address);
-            
-                expect(stakedAmount).to.equal(stakeAmount);
-            });
-    
-        })
-
-        describe('updateRewardsRatePerSeconds', function() {
-            it('Should successfully update the rewards rate per second', async function() {
-                const newRewardsRatePerSecond = 777n;
-                await stakingERC1155Id1.connect(owner).updateRewardsRatePerSeconds(newRewardsRatePerSecond);
-
-                const updatedRewardsRatePerSecond = await stakingERC1155Id1.rewardsRatePerSecond();
-
-                expect(updatedRewardsRatePerSecond).to.equal(newRewardsRatePerSecond);
-            });
-
-            it('Should fail when a non-owner tries to update the rewards rate', async function() {
-                const newRewardsRatePerSecond = 777n;
-
-                await expect(stakingERC1155Id1.connect(addr1).updateRewardsRatePerSeconds(newRewardsRatePerSecond))
-                .to.be.revertedWith('Ownable: caller is not the owner');
-            });
-
-            it('Should emit RewardsRateUpdated event on successful rate update', async function() {
-                const newRewardsRatePerSecond = 777n;
         
-                await expect(stakingERC1155Id1.connect(owner).updateRewardsRatePerSeconds(newRewardsRatePerSecond))
-                    .to.emit(stakingERC1155Id1, 'RewardsRateUpdated')
-                    .withArgs(newRewardsRatePerSecond);
-            });
-        });
-
-        // Test indirectly the onERC1155Received function but doesn't coun in the hardhat coverage
-        describe('Testing onERC1155Received function', function() {
-            it('Should revert receiving ERC1155 tokens for DiscountToken as it as not been set in setApprovalForAll', async function() {
-                await expect(tokenize.connect(addr1).safeTransferFrom(addr1, discountToken.target, 1, 100, '0x')).to.be.reverted;
-            });
-        
-            it('Should successfully receive ERC1155 tokens for stakingERC1155Id1', async function() {
-                await tokenize.connect(addr1).safeTransferFrom(addr1, stakingERC1155Id1.target, 1, 100, '0x');
-        
-                const balance = await tokenize.balanceOf(stakingERC1155Id1.target, 1);
-                expect(balance).to.equal(100);
-            });
-        });
     
-
-        // Test indirectly the onERC1155BatchReceived function but doesn't coun in the hardhat coverage
-        describe('Testing onERC1155BatchReceived function', function() {
-            it('Should revert receiving batch of ERC1155 tokens for DiscountToken as it as not been set in setApprovalForAll', async function() {
-                const ids = [1, 3];
-                const amounts = [100, 200];
-                await expect(tokenize.connect(addr1).safeBatchTransferFrom(addr1, discountToken.target, ids, amounts, '0x')).to.be.reverted;
-            });
-    
-            it('Should successfully receive batch of ERC1155 tokens for stakingERC1155Id1', async function() {
-                const ids = [1, 3];
-                const amounts = [100, 200];
-                await tokenize.connect(addr1).safeBatchTransferFrom(addr1, stakingERC1155Id1.target, ids, amounts, '0x');
-    
-                const balance1 = await tokenize.balanceOf(stakingERC1155Id1.target, 1);
-                const balance2 = await tokenize.balanceOf(stakingERC1155Id1.target, 3);
-                expect(balance1).to.equal(100);
-                expect(balance2).to.equal(200);
-            });
+        it('Should fail if no tokens staked', async function() {
+            await expect(stakingERC1155Id1.connect(addr2).getPendingRewards())
+                .to.be.revertedWith('StakingContract: No token staked');
         });
     });
 
 
+    describe('Testing getPendingRewards function', function() {
 
+        it('getStakedAmount should return correct staked amount after staking', async function() {
+            const stakeAmount = 100;
+            await stakingERC1155Id1.connect(addr1).stakeERC1155ID1(stakeAmount);
+            await network.provider.send("evm_mine");
+        
+            const stakedAmount = await stakingERC1155Id1.getStakedAmount(addr1.address);
+        
+            expect(stakedAmount).to.equal(stakeAmount);
+        });
+
+    })
+
+    describe('updateRewardsRatePerSeconds', function() {
+        it('Should successfully update the rewards rate per second', async function() {
+            const newRewardsRatePerSecond = 777n;
+            await stakingERC1155Id1.connect(owner).updateRewardsRatePerSeconds(newRewardsRatePerSecond);
+
+            const updatedRewardsRatePerSecond = await stakingERC1155Id1.rewardsRatePerSecond();
+
+            expect(updatedRewardsRatePerSecond).to.equal(newRewardsRatePerSecond);
+        });
+
+        it('Should fail when a non-owner tries to update the rewards rate', async function() {
+            const newRewardsRatePerSecond = 777n;
+
+            await expect(stakingERC1155Id1.connect(addr1).updateRewardsRatePerSeconds(newRewardsRatePerSecond))
+            .to.be.revertedWith('Ownable: caller is not the owner');
+        });
+
+        it('Should emit RewardsRateUpdated event on successful rate update', async function() {
+            const newRewardsRatePerSecond = 777n;
+    
+            await expect(stakingERC1155Id1.connect(owner).updateRewardsRatePerSeconds(newRewardsRatePerSecond))
+                .to.emit(stakingERC1155Id1, 'RewardsRateUpdated')
+                .withArgs(newRewardsRatePerSecond);
+        });
+    });
+
+    // Test indirectly the onERC1155Received function but doesn't coun in the hardhat coverage
+    describe('Testing onERC1155Received function', function() {
+        it('Should revert receiving ERC1155 tokens for DiscountToken as it as not been set in setApprovalForAll', async function() {
+            await expect(tokenize.connect(addr1).safeTransferFrom(addr1, discountToken.target, 1, 100, '0x')).to.be.reverted;
+        });
+    
+        it('Should successfully receive ERC1155 tokens for stakingERC1155Id1', async function() {
+            await tokenize.connect(addr1).safeTransferFrom(addr1, stakingERC1155Id1.target, 1, 100, '0x');
+    
+            const balance = await tokenize.balanceOf(stakingERC1155Id1.target, 1);
+            expect(balance).to.equal(100);
+        });
+    });
+    
+
+    // Test indirectly the onERC1155BatchReceived function but doesn't coun in the hardhat coverage
+    describe('Testing onERC1155BatchReceived function', function() {
+        it('Should revert receiving batch of ERC1155 tokens for DiscountToken as it as not been set in setApprovalForAll', async function() {
+            const ids = [1, 3];
+            const amounts = [100, 200];
+            await expect(tokenize.connect(addr1).safeBatchTransferFrom(addr1, discountToken.target, ids, amounts, '0x')).to.be.reverted;
+        });
+
+        it('Should successfully receive batch of ERC1155 tokens for stakingERC1155Id1', async function() {
+            const ids = [1, 3];
+            const amounts = [100, 200];
+            await tokenize.connect(addr1).safeBatchTransferFrom(addr1, stakingERC1155Id1.target, ids, amounts, '0x');
+
+            const balance1 = await tokenize.balanceOf(stakingERC1155Id1.target, 1);
+            const balance2 = await tokenize.balanceOf(stakingERC1155Id1.target, 3);
+            expect(balance1).to.equal(100);
+            expect(balance2).to.equal(200);
+        });
+    });
+
+    describe('Testing fallback and receive', function() {
+        it("Should revert when trying to send Ether to the contract", async function() {
+            // Try to send Ether to the contract
+            await expect(
+            addr1.sendTransaction({
+                to: stakingERC1155Id1.address,
+                value: ethers.utils.parseEther("1.0") // Sending 1 Ether
+            })
+            ).to.be.revertedWith("This contract does not accept ether"); // Expect a revert with the specified message
+        });
+    });  
 
 
 
