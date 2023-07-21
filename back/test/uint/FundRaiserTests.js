@@ -74,24 +74,15 @@ describe('Testing FundRaiser.sol contract', function() {
             await expect(fundRaiser.connect(addr1).addToWhitelist(addr1.address)).to.be.revertedWith("Ownable: caller is not the owner");
         });
 
-        it("Should revert thhe address is already whitelisted", async function() {
+        it("Should revert the address is already whitelisted", async function() {
             await fundRaiser.connect(owner).addToWhitelist(addr1.address);
             await expect(fundRaiser.connect(owner).addToWhitelist(addr1.address)).to.be.revertedWith("The address is already whitelisted");
         });
 
-        it("Owner should be able to remove address from whitelist", async function() {
-            await fundRaiser.connect(owner).addToWhitelist(addr1.address);
-            await fundRaiser.connect(owner).removeFromWhitelist(addr1.address);
-            expect(await fundRaiser.whitelist(addr1.address)).to.equal(false);
-        });
-
-        it("Should revert if removeFromWhitelist is not called by the Owner", async function() {
-            await fundRaiser.connect(owner).addToWhitelist(addr1.address);
-            await expect(fundRaiser.connect(addr1).removeFromWhitelist(addr1.address)).to.be.revertedWith("Ownable: caller is not the owner");
-        });
-
-        it("Owner should not be able to remove an address not in whitelist", async function() {
-            await expect(fundRaiser.connect(owner).removeFromWhitelist(addr1.address)).to.be.revertedWith("The address is not currently whitelisted");
+        it("Should emit AddedToWhitelist event", async function() {
+            await expect(fundRaiser.connect(owner).addToWhitelist(addr1.address))
+            .to.emit(fundRaiser, 'AddedToWhitelist')
+            .withArgs(addr1.address);
         });
     });
 
@@ -110,6 +101,13 @@ describe('Testing FundRaiser.sol contract', function() {
 
         it("Should revert if trying to remove an address not whitelisted", async function() {
             await expect(fundRaiser.connect(owner).removeFromWhitelist(addr1.address)).to.be.revertedWith("The address is not currently whitelisted");
+        });
+
+        it("Should emit RemovedFromWhitelist event", async function() {
+            await fundRaiser.connect(owner).addToWhitelist(addr1.address);
+            await expect(fundRaiser.connect(owner).removeFromWhitelist(addr1.address))
+                .to.emit(fundRaiser, 'RemovedFromWhitelist')
+                .withArgs(addr1.address);
         });
     });
 

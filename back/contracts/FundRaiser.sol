@@ -48,6 +48,8 @@ contract FundRaiser is Ownable, ReentrancyGuard {
     WorkflowStatus public currentStatus;
 
     event StatusChanged(WorkflowStatus newStatus);
+    event AddedToWhitelist(address indexed account);
+    event RemovedFromWhitelist(address indexed account);
 
     mapping(address => uint256) public ticketOwners;
     mapping(address => bool) public whitelist;
@@ -76,6 +78,7 @@ contract FundRaiser is Ownable, ReentrancyGuard {
     function addToWhitelist(address _address) public onlyOwner {
         require(!whitelist[_address], "The address is already whitelisted");
         whitelist[_address] = true;
+        emit AddedToWhitelist(_address); 
     }
 
     /**
@@ -86,6 +89,7 @@ contract FundRaiser is Ownable, ReentrancyGuard {
     function removeFromWhitelist(address _address) public onlyOwner {
         require(whitelist[_address], "The address is not currently whitelisted");
         whitelist[_address] = false;
+        emit RemovedFromWhitelist(_address);
     }
 
 
