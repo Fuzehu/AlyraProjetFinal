@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Text, Box, Heading, Flex, Grid, useToast, VStack, Stat, StatLabel, StatNumber, StatHelpText, StatArrow } from '@chakra-ui/react';
+import { Button, Input, Text, Box, Heading, Flex, Grid, useToast, VStack, Stat, StatLabel, StatNumber, StatHelpText, StatArrow, Center } from '@chakra-ui/react';
 import Contract from '../../public/artifacts/contracts/StakingERC1155Id1.sol/StakingERC1155Id1.json'; 
+import TokenizeContract from '../../public/artifacts/contracts/Tokenize.sol/Tokenize.json';
+import DiscountTokenContract from '../../public/artifacts/contracts/DiscountToken.sol/DiscountToken.json';
 import { ethers } from 'ethers';
 import { useAccount } from 'wagmi';
 import { prepareWriteContract, writeContract, readContract } from '@wagmi/core';
 
 const StakingPoolID1 = () => {
   const contractAddress = process.env.NEXT_PUBLIC_STAKINGERC1155ID1_CONTRACT_ADDRESS; 
+  const tokenizeContractAddress = process.env.NEXT_PUBLIC_TOKENIZE_CONTRACT_ADDRESS;
+  const discountTokenContractAddress = process.env.NEXT_PUBLIC_DISCOUNTTOKEN_CONTRACT_ADDRESS;
   const { isConnected, address } = useAccount();
   const toast = useToast();
   const [tokenAmountToStake, setTokenAmountToStake] = useState('');
@@ -14,6 +18,37 @@ const StakingPoolID1 = () => {
   const [rewards, setRewards] = useState('');
   const [tokenAmountToUnstake, setTokenAmountToUnstake] = useState('');
   const [updateFlag, setUpdateFlag] = useState(false);
+  const [MVSbalance, setMVSbalance] = useState('');
+
+
+  const approveContract = async () => {
+    try {
+      const { request } = await prepareWriteContract({
+        address: tokenizeContractAddress,
+        abi: TokenizeContract.abi,
+        functionName: "setApprovalForAll",
+        args: [contractAddress, true]
+      });
+      await writeContract(request);
+
+      toast({
+        title: 'Success!',
+        description: `Contract has been approved successfully!`,
+        status: 'success',
+        duration: 5000,
+        isClosable: true
+      });
+    } catch (err) {
+      console.log(err);
+      toast({
+        title: 'Error!',
+        description: 'An error occurred.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true
+      });
+    }
+  };
 
   const stake = async (_amount) => {
     try {
@@ -114,6 +149,7 @@ const StakingPoolID1 = () => {
         args: [address]
       });
       setStakedAmount(amount.toString());
+      return amount.toString();
     };
 
     const getPendingRewards = async () => {
@@ -128,22 +164,35 @@ const StakingPoolID1 = () => {
       setRewards(rewards.toString());
     };
 
+    const getMVSbalance = async () => {
+      const balance = await readContract({
+        address: discountTokenContractAddress,
+        abi: DiscountTokenContract.abi,
+        functionName: "balanceOf",
+        args: [address]
+      });
+      setMVSbalance(balance.toString());
+    };
+
     if (isConnected) {
-      getStakedAmount().then(() => {
-        if (stakedAmount > 0) {
+      console.log(`Checking staked amount and rewards for address: ${address}`);
+      getStakedAmount().then(amount => {
+        console.log(`Staked amount for ${address}: ${amount}`);
+        if (amount > 0) {
           getPendingRewards();
         }
       });
+      getMVSbalance();
     }
-  }, [isConnected, address, stakedAmount, updateFlag]);
+    console.log(`isConnected: ${isConnected}, address: ${address}`);
+  }, [isConnected, address, stakedAmount, contractAddress, updateFlag]);
 
   
-
   return (
     <Flex direction="column" align="center" justify="center" mt="2rem" p={5} w="80%" mx="auto">
       <Heading textAlign="center" mb={5} size="xl" fontWeight="bold" color="darkslateblue">Staking Interface</Heading>
-      <Grid templateColumns={["1fr", "repeat(2, 1fr)"]} gap={5} alignItems="start" bg="#1E1E3F" border="1px solid #FFF" borderRadius="lg" p={8} mb={8} color="white">
-        <Box bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" p={5} color="black">
+      <Grid templateColumns={["1fr", "repeat(2, 1fr)"]} gap={5} alignItems="start" bg="#1E1E3F" border="1px solid #FFF" borderRadius="lg" p={8} mb={8} color="white" gridAutoRows="1fr">
+        <Box minHeight="795px" bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" p={5} color="black">
           <Heading color="darkslateblue" mb={5} size="xl">Staking Operations</Heading>
           <VStack spacing={5} align="stretch">
             <Box bg="#D3D2FF" borderRadius="lg" p={5}>  
@@ -170,12 +219,22 @@ const StakingPoolID1 = () => {
           <Box bg="lightgray" borderRadius="lg" p={5} mt={5}>
             <Heading size="lg" mb={2}>Your Staking Information</Heading>
             <Text fontSize="lg">Tokens staked: <Text as="span" fontWeight="bold" color="darkslateblue">{stakedAmount}</Text></Text>
-            <Text fontSize="lg">Pending rewards: <Text as="span" fontWeight="bold" color="darkslateblue">{rewards}</Text></Text>
+            <Text fontSize="lg">Pending rewards: <Text as="span" fontWeight="bold" color="darkslateblue">{parseFloat(rewards / 10**18).toFixed(12)}</Text></Text>
+            <Text fontSize="lg">Your MVS balance: <Text as="span" fontWeight="bold" color="darkslateblue">{parseFloat(MVSbalance / 10**18).toFixed(12)}</Text></Text>
           </Box>
         </Box>
-        <Box bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" p={5} color="black">
+        <Box minHeight="795px" bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" p={5} color="black">
           <Heading color="darkslateblue" mb={5} size="xl">Staking Informations</Heading>
           <VStack spacing={5} align="stretch">
+            <Box bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" p={5} color="black" mb={5}>
+              <Center flexDirection="column">
+                <Text color="darkslateblue" mb={3} textAlign="center">
+                  Before interacting with the staking contract, you need to approve it to interact with your tokens. 
+                  Click on the "Approve Contract" button below to do so.
+                </Text>
+                <Button onClick={approveContract} bg="slateblue" color="white">Approve Contract</Button>
+              </Center>
+            </Box>
             <Box bg="#D3D2FF" borderRadius="lg" p={5}>
               <Text fontWeight="bold">Reward Rate:</Text>
               <Text mb={3}>6 MDT/NFT generated for an effective 9 months staking period</Text>
