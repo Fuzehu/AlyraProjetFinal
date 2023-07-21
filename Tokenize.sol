@@ -23,6 +23,10 @@ contract Tokenize is ERC1155URIStorage, Ownable {
         _mint(msg.sender, 0, 1, "");
         _initialized = true;
     }
+    function getGfvInfoForTokenId(uint256 _tokenId) external view returns (GfvInfo memory) {
+        require(_gfvTokens[_tokenId].exists, "Token does not exist");
+        return _gfvTokens[_tokenId];
+    }
     function authorizeContract(address contractAddress) external onlyOwner {
         require(!_mintTokenFunctionAuthorizedContracts[contractAddress], "Contract is already authorized");
         _mintTokenFunctionAuthorizedContracts[contractAddress] = true;

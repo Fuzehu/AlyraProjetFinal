@@ -133,7 +133,7 @@ function getGfvInfoForTokenId(uint256 _tokenId) external view returns (GfvInfo m
 ///////////////////////////////////////////////// *-- GFV Struct Management *-- ///////////////////////////////////////////////
 
     /**
-     * @notice Initializes the GFV information for a specific token ID
+     * @notice Initializes the GFV information for a specific token ID and sets its URI
      *         This function can only be called by the contract owner
      * @param _tokenId ID of the token
      * @param _sharePrice Price of a token share
@@ -148,6 +148,9 @@ function getGfvInfoForTokenId(uint256 _tokenId) external view returns (GfvInfo m
         gfvInfoToUpdate.sharePrice = _sharePrice;
         gfvInfoToUpdate.tokenURI = _uri;
         gfvInfoToUpdate.tokenName = _tokenName;
+
+        // Set the URI for the token
+        _setURI(_tokenId, _uri);
     }
 
     /**
