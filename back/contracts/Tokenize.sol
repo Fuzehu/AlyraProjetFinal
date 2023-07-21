@@ -29,8 +29,10 @@ contract Tokenize is ERC1155URIStorage, Ownable {
 
     mapping (address => bool) public _mintTokenFunctionAuthorizedContracts;
 
+    event ContractAuthorized(address indexed contractAddress);
+    event ContractRevoked(address indexed contractAddress);
     event TokenMinted(address to, uint256 tokenId, uint256 amount);
-
+    
     constructor() ERC1155("") {}
 
 
@@ -68,21 +70,27 @@ function getGfvInfoForTokenId(uint256 _tokenId) external view returns (GfvInfo m
     /**
      * @notice Authorizes a contract to call the _mintToken function
      *         This function can only be called by the contract owner
+     * @dev Emit ContractAuthorized event with the address that as been authorized
      * @param contractAddress Address of the contract to authorize
      */
     function authorizeContract(address contractAddress) external onlyOwner {
         require(!_mintTokenFunctionAuthorizedContracts[contractAddress], "Contract is already authorized");
         _mintTokenFunctionAuthorizedContracts[contractAddress] = true;
+
+        emit ContractAuthorized(contractAddress);
     }
 
     /**
      * @notice Revokes the authorization given to a contract to call the _mintToken function
      *         This function can only be called by the contract owner
+     * @dev Emit ContractRevoked event with the address that as been authorized
      * @param contractAddress Address of the contract to revoke authorization from
      */
     function revokeContract(address contractAddress) external onlyOwner {
         require(_mintTokenFunctionAuthorizedContracts[contractAddress], "Contract is not authorized");
         _mintTokenFunctionAuthorizedContracts[contractAddress] = false;
+
+        emit ContractRevoked(contractAddress);
     }
 
 

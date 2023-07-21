@@ -275,7 +275,6 @@ describe('Testing StakingERC1155Id1.sol contract', function() {
 
 
     describe('Testing getPendingRewards function', function() {
-
         it('getPendingRewards should return correct pending rewards after staking', async function() {
             const stakeAmount = 1;
             await stakingERC1155Id1.connect(addr1).stakeERC1155ID1(stakeAmount);
@@ -297,6 +296,32 @@ describe('Testing StakingERC1155Id1.sol contract', function() {
             const lowerBound = expectedRewards * (1 - tolerance);
             const upperBound = expectedRewards * (1 + tolerance);
         
+            console.log(pendingRewardsNum)
+            expect(pendingRewardsNum).to.be.within(lowerBound, upperBound);
+        });
+
+        it('getPendingRewards should return correct pending rewards after staking 2', async function() {
+            const stakeAmount = 2;
+            await stakingERC1155Id1.connect(addr1).stakeERC1155ID1(stakeAmount);
+            await network.provider.send("evm_mine");
+        
+            // Simulate 1 hour of block time.
+            const oneHourInSeconds = 60 * 60; // 60 minutes * 60 seconds
+            await network.provider.send("evm_increaseTime", [oneHourInSeconds]);
+            await network.provider.send("evm_mine");
+        
+            const rewardsRatePerSecond = await stakingERC1155Id1.rewardsRatePerSecond();
+            const rewardsRatePerSecondNum = Number(rewardsRatePerSecond.toString());
+            const expectedRewards = stakeAmount * rewardsRatePerSecondNum * oneHourInSeconds;
+            const pendingRewards = await stakingERC1155Id1.connect(addr1).getPendingRewards();
+            const pendingRewardsNum = Number(pendingRewards.toString());
+        
+            // Verify the pending rewards with a tolerance of 1%
+            const tolerance = 0.01; // 1%
+            const lowerBound = expectedRewards * (1 - tolerance);
+            const upperBound = expectedRewards * (1 + tolerance);
+            
+            console.log(pendingRewardsNum)
             expect(pendingRewardsNum).to.be.within(lowerBound, upperBound);
         });
         
@@ -309,7 +334,6 @@ describe('Testing StakingERC1155Id1.sol contract', function() {
 
 
     describe('Testing getPendingRewards function', function() {
-
         it('getStakedAmount should return correct staked amount after staking', async function() {
             const stakeAmount = 100;
             await stakingERC1155Id1.connect(addr1).stakeERC1155ID1(stakeAmount);
