@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, useEffect } from 'react'
 import { Heading, Flex, Text, Input, Button, useToast, Box, UnorderedList, ListItem, Checkbox } from '@chakra-ui/react'
 import Contract from '../../../../public/artifacts/contracts/Tokenize.sol/Tokenize.json'
@@ -19,7 +20,7 @@ const ERC1155 = () => {
     //states
     const [isInitialized, setIsInitialized] = useState(false)
     const [to, setTo] = useState('')
-    const [totalSupply, setTotalSupply] = useState(0)
+    const [totalSupply, setTotalSupply] = useState([])
     const [tokenName, setTokenName] = useState('')
     const [tokenURI, setTokenURI] = useState('')
     const [operatorAddress, setOperatorAddress] = useState('')
@@ -145,7 +146,7 @@ const ERC1155 = () => {
 
         }
         getPastEvents()
-    }, []);
+    }, [mintedTokensLogs, approvedAddresses]);
 
 
     
@@ -164,19 +165,19 @@ const ERC1155 = () => {
                 </Box>
             )}
             {isInitialized && (
-                <Flex flexDirection="row" flexWrap="wrap" justifyContent="space-between">
+                <Flex flexDirection="row" flexWrap="wrap" justifyContent="space-around">
                     <Box width={["100%", "45%"]} p={5} bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" ml={0} mt={3} mb={3}>
                         <Heading color="darkslateblue" mb={4}>Set Approval For All</Heading>
                         <Flex justifyContent="space-between" alignItems="center">
                             <Flex flexDirection="column">
                                 <Input placeholder="Operator address" value={operatorAddress} onChange={e => setOperatorAddress(e.target.value)} />
-                                <Checkbox isChecked={approved} onChange={e => setApproved(e.target.checked)}>Approve?</Checkbox>
+                                <Checkbox isChecked={approved} onChange={e => setApproved(e.target.checked)}>Approve ?</Checkbox>
                             </Flex>
                             <Button onClick={() => setApprovalForAll(operatorAddress, approved)} bg="slateblue" color="white">Set / Revoke Approval</Button>
                         </Flex>
                     </Box>
-                    <Box width={["100%", "45%"]} p={5} bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" ml={0} mt={3} mb={3}>
-                        <Heading color="darkslateblue" mb={4}>Approved Addresses</Heading>
+                    <Box width={["100%", "45%"]} p={5} bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" ml={0} mt={3} mb={3} style={{maxHeight: '20vh', overflowY: 'auto'}}>
+                        <Heading color="darkslateblue" mb={4}>Approved Addresses Logs</Heading>
                         <UnorderedList>
                             {approvedAddresses.map((event, index) => (
                                 <ListItem key={index}>
@@ -190,14 +191,14 @@ const ERC1155 = () => {
                         <Flex justifyContent="space-between" alignItems="center">
                             <Flex flexDirection="column">
                                 <Input placeholder="Recipient address" value={to} onChange={e => setTo(e.target.value)} />
-                                <Input placeholder="Total supply" type="number" value={totalSupply} onChange={e => setTotalSupply(Number(e.target.value))} />
+                                <Input placeholder="Total supply" type="number" value={totalSupply} onChange={e => setTotalSupply(e.target.value)} />
                                 <Input placeholder="Token name" value={tokenName} onChange={e => setTokenName(e.target.value)} />
                                 <Input placeholder="Token URI" value={tokenURI} onChange={e => setTokenURI(e.target.value)} />
                             </Flex>
                             <Button onClick={() => mintToken(to, totalSupply, tokenName, tokenURI)} bg="slateblue" color="white">Mint Token</Button>
                         </Flex>
                     </Box>
-                    <Box width={["100%", "45%"]} p={5} bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" ml={0} mt={3} mb={3}>
+                    <Box width={["100%", "45%"]} p={5} bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" ml={0} mt={3} mb={3} style={{maxHeight: '28vh', overflowY: 'auto'}}>
                         <Heading color="darkslateblue" mb={4}>ERC1155 Mint Logs</Heading>
                         <UnorderedList>
                             {mintedTokensLogs.map((token, index) => (

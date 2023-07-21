@@ -26,7 +26,7 @@ const IsAdmin = () => {
     return (
         <Box flexGrow={1} p="3em">
             <Heading fontSize="2xl" color="darkslateblue" ml="1em" mt="1em">Welcome to the Admin page!</Heading>
-            <Text fontSize="lg" color="darkslateblue" ml="1em" mb="1em">Here you can manage different aspects from the contracts used in the DAPP, such as Tokenization, Discount Tokens and the Staking Pool Management. Choose a functionality from the dropdown below to proceed.</Text>
+            <Text fontSize="lg" color="darkslateblue" ml="1em" mb="1em">Here you can manage different aspects from the contracts used in the DAPP, such as Tokenization, Discount Tokens, Fundraising and the Staking Pool Management. Choose a functionality from the dropdown below to proceed.</Text>
             <Box bg="darkslateblue" p={5} borderRadius="lg" boxShadow="md" mb={5}>
                 <Flex alignItems="center" mb={3}>
                     <Text fontSize="xl" color="white" ml="1em">Select the Admin functionalities you want to access :</Text>
@@ -37,6 +37,7 @@ const IsAdmin = () => {
                         <MenuList color="darkslateblue" bg="lightgray">
                             <MenuItem onClick={() => setSelectedOption('Tokenize Admin = ERC1155')}>Tokenize = ERC1155</MenuItem>
                             <MenuItem onClick={() => setSelectedOption('DiscountToken Admin = ERC20')}>DiscountToken = ERC20</MenuItem>
+                            <MenuItem onClick={() => setSelectedOption('FundRaising = NFT presale & mint')}>FundRaiser = ERC1155 Presale & Mint</MenuItem>
                             <MenuItem onClick={() => setSelectedOption('Staking Pool ID1 Admin')}>Staking Pool ID1</MenuItem>
                         </MenuList>
                     </Menu>

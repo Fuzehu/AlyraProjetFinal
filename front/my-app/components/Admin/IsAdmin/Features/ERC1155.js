@@ -27,6 +27,8 @@ const ERC1155 = () => {
     const [approved, setApproved] = useState(false)
     const [mintedTokensLogs, setMintedTokensLogs] = useState([])
     const [approvedAddresses, setApprovedAddresses] = useState([])
+    //////
+    const [tokenIdToCheck, setTokenIdToCheck] = useState("");
 
 
     const init = async () => {
@@ -121,6 +123,22 @@ const ERC1155 = () => {
         }
     }
 
+    const getGfvInfoForTokenId = async () => {
+        try {
+          const tokenId = parseInt(tokenIdToCheck);
+          const { read, request } = await readContract({
+            address: contractAddress,
+            abi: Contract.abi,
+          });
+      
+          const gfvInfo = await read._gfvTokens(tokenId);
+          console.log(gfvInfo); // Vérifier les informations dans la console
+          console.log("GFV Info for Token ID", tokenId, ":", gfvInfo);
+        } catch (err) {
+          console.log(err);
+        }
+      };
+
 
     useEffect(() => {
         const getPastEvents = async () => {
@@ -208,6 +226,15 @@ const ERC1155 = () => {
                             ))}
                         </UnorderedList>
                     </Box>
+                    <Box width={["100%", "45%"]} p={5} bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" ml={0} mt={3} mb={3}>
+                        <Heading color="darkslateblue" mb={4}>Check Specific GFV Info</Heading>
+                        <Flex justifyContent="space-between" alignItems="center">
+                            <Flex flexDirection="column">
+                            <Input placeholder="Token ID" type="number" value={tokenIdToCheck} onChange={e => setTokenIdToCheck(e.target.value)} />
+                            </Flex>
+                            <Button onClick={getGfvInfoForTokenId} bg="slateblue" color="white">Check GFV Info</Button>
+                        </Flex>
+                        </Box>
                 </Flex>
             )}
         </Flex>

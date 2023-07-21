@@ -15,7 +15,8 @@ const Header = () => {
     >
       <Box display="flex" fontWeight="bold">
         <ChakraLink as={Link} href="/" fontSize="2xl" m={4}>Index</ChakraLink>
-        <ChakraLink as={Link} href="myVinesTokens" fontSize="2xl" m={4}>My Vines</ChakraLink>
+        <ChakraLink as={Link} href="/ourProperties" fontSize="2xl" m={4}>Our Properties</ChakraLink>
+        <ChakraLink as={Link} href="/myVinesTokens" fontSize="2xl" m={4}>My Vines</ChakraLink>
         <ChakraLink as={Link} href="/staking" fontSize="2xl" m={4}>Staking Pools</ChakraLink>
         <ChakraLink as={Link} href="/admin" fontSize="2xl" m={4}>Admin Panel</ChakraLink>
       </Box>

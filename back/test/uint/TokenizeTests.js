@@ -13,6 +13,27 @@ describe('Testing Tokenize.sol contract', function () {
         tokenize = await Tokenize.deploy();
     });
 
+    describe('Testing getGfvInfoForTokenId function', function () {
+        it('Should return the correct GfvInfo if the token exists', async function () {
+            const tokenId = 1;
+            await tokenize.connect(owner).initGfvInfoForATokenId(tokenId, 100, "https://example.com", "TokenName");
+
+            const gfvInfo = await tokenize.getGfvInfoForTokenId(tokenId);
+
+            assert.isTrue(gfvInfo.exists);
+            expect(gfvInfo.tokenName).to.equal("TokenName");
+            expect(gfvInfo.totalSupply).to.equal(0); 
+            expect(gfvInfo.sharePrice).to.equal(100);
+            expect(gfvInfo.tokenURI).to.equal("https://example.com");
+        });
+
+        it('Should revert with "Token does not exist" if the token does not exist', async function () {
+            const nonExistentTokenId = 2;
+
+            await expect(tokenize.getGfvInfoForTokenId(nonExistentTokenId)).to.be.revertedWith("Token does not exist");
+        });
+    });
+
 
     describe('Testing authorizeContract and revokeContract functions', function () {
     

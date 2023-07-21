@@ -34,6 +34,19 @@ contract Tokenize is ERC1155URIStorage, Ownable {
     constructor() ERC1155("") {}
 
 
+////////////////////////////////////////// *-- Getter GfvInfo Struct by tokenId *-- ////////////////////////////////////////
+
+    /**
+    * @notice Returns the GfvInfo for a given token ID
+    * @param _tokenId The ID of the token for which to return the GfvInfo
+    * @return GfvInfo struct for the given token ID
+    */
+function getGfvInfoForTokenId(uint256 _tokenId) external view returns (GfvInfo memory) {
+    require(_gfvTokens[_tokenId].exists, "Token does not exist");
+    return _gfvTokens[_tokenId];
+}
+
+
 ////////////////////////////// *-- Initialize the GfvInfo struct with GENESIS as tokenId 0 *-- ////////////////////////////
 
     /**
