@@ -179,17 +179,17 @@ const ERC20 = () => {
                 </Box>
             </Flex>
             <Flex flexDirection="row" width="100%" justifyContent="space-around">
-                <Box width="50%" p={5} bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" mt={3} mb={3} mr={3}>
+                <Box width="40%" p={5} bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" mt={3} mb={3} mr={3}>
                     <Heading color="darkslateblue">Mint Tokens</Heading>
                     <Input placeholder="Enter address" mb={3} value={mintAddress} onChange={e => setMintAddress(e.target.value)} />
                     <Input placeholder="Enter amount" mb={3} value={mintAmount} onChange={e => setMintAmount(e.target.value)} />
                     <Button onClick={() => mint(mintAddress, mintAmount)} bg="slateblue" color="white">Mint Tokens</Button>
                 </Box>
-                <Box width="50%" p={5} bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" mt={3} mb={3} ml={3 }style={{maxHeight: '25vh', overflowY: 'auto'}}>
+                <Box width="60%" p={5} bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" mt={3} mb={3} ml={3 }style={{maxHeight: '25vh', overflowY: 'auto'}}>
                     <Heading color="darkslateblue">Minted Tokens</Heading>
                     <Box overflowY="auto" maxHeight="200px">
                         {mintedTokensReceiver.map((log, index) => 
-                            <Text key={index}>{log.receiver}: {mintedTokensAmount[index].amount} tokens</Text>
+                            <Text key={index}>{log.receiver}: {(parseFloat(mintedTokensAmount[index].amount.toString()) / 10**18).toFixed(10)} tokens</Text>
                         )}
                     </Box>
                 </Box>

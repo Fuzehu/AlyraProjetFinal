@@ -21,10 +21,6 @@ const ERC1155 = () => {
     const [isInitialized, setIsInitialized] = useState(false)
     const [to, setTo] = useState('')
     const [totalSupply, setTotalSupply] = useState([])
-    const [tokenName, setTokenName] = useState('')
-    const [tokenURI, setTokenURI] = useState('')
-    const [operatorAddress, setOperatorAddress] = useState('')
-    const [approved, setApproved] = useState(false)
     const [mintedTokensLogs, setMintedTokensLogs] = useState([])
     const [approvedAddresses, setApprovedAddresses] = useState([])
     const [tokenIdForInit, setTokenIdForInit] = useState('');
@@ -38,6 +34,9 @@ const ERC1155 = () => {
     const [contractAddressToRevoke, setContractAddressToRevoke] = useState('')
     const [contractAddresses, setContractAddresses] = useState([]);
     const [tokenId, setTokenId] = useState('');
+    const [ERC1155MintedAccount, setERC1155MintedAccount] = useState([]);
+    const [ERC1155MintedId, setERC1155MintedId] = useState([]);
+    const [ERC1155MintedValue, setERC1155MintedValue] = useState([]);
     
 
     const init = async () => {
@@ -82,7 +81,7 @@ const ERC1155 = () => {
             })
             
             await writeContract(request)
-            setContractAddresses([...contractAddresses, _addr])
+            setContractAddresses([contractAddresses, _addr])
 
             toast({
                 title: 'Success !',
@@ -114,6 +113,7 @@ const ERC1155 = () => {
 
             await writeContract(request)
             setContractAddresses(contractAddresses.filter(address => address !== _addr))
+
 
             toast({
                 title: 'Success !',
@@ -163,36 +163,6 @@ const ERC1155 = () => {
             });
         }
     };
-
-    const setApprovalForAll = async (_operator, _approved) => {
-        try {
-            const { request } = await prepareWriteContract({
-                address: contractAddress,
-                abi: Contract.abi,
-                functionName: "setApprovalForAll",
-                args: [_operator, _approved],
-            })
-
-            await writeContract(request)
-
-            toast({
-                title: 'Success !',
-                description: `The ${_operator} address has been ${_approved ? 'approved' : 'disapproved'} successfully`,
-                status: 'success',
-                duration: 5000,
-                isClosable: true,
-            })
-        } catch (err) {
-            console.log(err);
-            toast({
-                title: 'Error!',
-                description: 'An error occured.',
-                status: 'error',
-                duration: 3000,
-                isClosable: true,
-            })
-        }
-    }
 
     const initGfvInfo = async () => {
         try {
@@ -287,12 +257,18 @@ const ERC1155 = () => {
                 setIsInitialized(true);
             }
 
-            const tokensMintedLogs = await client.getLogs({
-                event: parseAbiItem('event TokenMinted(address indexed to, uint256 indexed tokenId, uint256 amount)'),
+            const tokenMintedLogs = await client.getLogs({
+                event: parseAbiItem('event TokenMinted(address to, uint256 tokenId, uint256 amount)'),
                 fromBlock: 0n,
                 toBlock: 'latest'
             })
-            setMintedTokensLogs(tokensMintedLogs)
+            
+            const setToLogs = tokenMintedLogs.map(log => ({to: log.args.to}));
+            const setTokenIdLogs = tokenMintedLogs.map(log => ({tokenId: log.args.tokenId}));
+            const setAmountLogs = tokenMintedLogs.map(log => ({amount: log.args.amount}));
+            setERC1155MintedAccount(setToLogs);
+            setERC1155MintedId(setTokenIdLogs);
+            setERC1155MintedValue(setAmountLogs);
             
             const approvedAddressesLogs = await client.getLogs({
                 event: parseAbiItem('event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved)'),
@@ -312,7 +288,12 @@ const ERC1155 = () => {
                 fromBlock: 0n,
                 toBlock: 'latest'
             })
-
+            
+            const authorizedContracts = authorizeContractLogs.map(log => log.args.contractAddress);
+            const revokedContracts = revokeContractLogs.map(log => log.args.contractAddress);
+    
+            const currentContracts = authorizedContracts.filter(address => !revokedContracts.includes(address));
+            setContractAddresses(currentContracts);
         }
         getPastEvents()
     }, [mintedTokensLogs, approvedAddresses]);
@@ -334,24 +315,24 @@ const ERC1155 = () => {
       
           {/* Ligne 2: Authorize Contract & Revoke Contract */}
             <Flex justifyContent="space-between">
-                <Box width={["100%", "30%"]} p={5} bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" ml={0} mt={3} mb={3}>
+                <Box width={["100%", "25%"]} p={5} bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" ml={0} mt={3} mb={3}>
                     <Heading color="darkslateblue" mb={4}>Authorize Contract</Heading>
                     <Flex flexDirection="column">
                         <Input placeholder="Contract address" value={contractAddressToAdd} onChange={e => setContractAddressToAdd(e.target.value)} mb={2} />
                         <Button onClick={() => authorizeContract(contractAddressToAdd)} bg="slateblue" color="white" mb={2}>Authorize Contract</Button>
                     </Flex>
                 </Box>
-                <Box width={["100%", "30%"]} p={5} bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" ml={0} mt={3} mb={3}>
+                <Box width={["100%", "45%"]} p={5} bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" ml={0} mt={3} mb={3}>
                     <Heading color="darkslateblue" mb={4}>List of Authorized Contract</Heading>
                     <Box overflowY="scroll" height="200px" p={2}>
                         <UnorderedList>
-                            {contractAddresses.map((addr, index) => (
-                                <ListItem key={index}>{addr}</ListItem>
+                            {contractAddresses.map((_addr, index) => (
+                                <ListItem key={index}>{_addr}</ListItem>
                             ))}
                         </UnorderedList>
                     </Box>
                 </Box>
-                <Box width={["100%", "30%"]} p={5} bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" ml={0} mt={3} mb={3}>
+                <Box width={["100%", "25%"]} p={5} bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" ml={0} mt={3} mb={3}>
                     <Heading color="darkslateblue" mb={4}>Revoke Contract</Heading>
                     <Flex flexDirection="column">
                         <Input placeholder="Contract address" value={contractAddressToRevoke} onChange={e => setContractAddressToRevoke(e.target.value)} mb={2} />
@@ -393,7 +374,7 @@ const ERC1155 = () => {
 
             {/* Ligne 4: Mint a new token & ERC1155 Mint Logs */}
             <Flex justifyContent="space-between" flexWrap="wrap">
-                <Box width={["100%", "45%"]} p={5} bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" ml={0} mt={3} mb={3} style={{ maxHeight: '28vh', overflowY: 'auto' }}>
+                <Box width={["100%", "40%"]} p={5} bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" ml={0} mt={3} mb={3} style={{ maxHeight: '28vh', overflowY: 'auto' }}>
                     <Heading color="darkslateblue" mb={4}>Mint a new Token "Emergency"</Heading>
                     <Flex justifyContent="space-between" alignItems="center">
                         <Flex flexDirection="column">
@@ -404,15 +385,17 @@ const ERC1155 = () => {
                         <Button onClick={() => mintToken(to, tokenId, totalSupply)} bg="slateblue" color="white" mb={2}>Mint Token</Button>
                     </Flex>
                 </Box>
-                <Box width={["100%", "45%"]} p={5} bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" ml={0} mt={3} mb={3} style={{ maxHeight: '28vh', overflowY: 'auto' }}>
+                <Box width={["100%", "55%"]} p={5} bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" ml={0} mt={3} mb={3} style={{ maxHeight: '28vh', overflowY: 'auto' }}>
                     <Heading color="darkslateblue" mb={4}>ERC1155 Mint Logs</Heading>
-                    <UnorderedList>
-                        {mintedTokensLogs.map((token, index) => (
-                        <ListItem key={index}>
-                            To: {token.to}, TokenID: {token.tokenId}, Amount: {token.amount}
-                        </ListItem>
-                        ))}
-                    </UnorderedList>
+                    <Box overflowY="auto" maxHeight="200px">
+                        <UnorderedList>
+                            {ERC1155MintedAccount.map((account, index) => (
+                            <ListItem key={index}>
+                                To: {account.to}, TokenID: {ERC1155MintedId[index].tokenId.toString()}, Amount: {ERC1155MintedValue[index].amount.toString()}
+                            </ListItem>
+                            ))}
+                        </UnorderedList>
+                    </Box>
                 </Box>
             </Flex>
         </Flex>

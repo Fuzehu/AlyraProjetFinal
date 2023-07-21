@@ -6,12 +6,15 @@ import { ChevronDownIcon } from '@chakra-ui/icons'
 import ERC1155 from './Features/ERC1155'
 import ERC20 from './Features/ERC20'
 import StakingPoolId1Admin from './Features/StakingPoolId1Admin'
+import Fundraiser from './Features/Fundraiser'
 
 const IsAdmin = () => {
     const [selectedOption, setSelectedOption] = useState('Functionality of your choice');
 
     const renderComponent = () => {
         switch(selectedOption) {
+            case 'FundRaising Admin = NFT presale & mint':
+                return <Fundraiser />;
             case 'Tokenize Admin = ERC1155':
                 return <ERC1155 />;
             case 'DiscountToken Admin = ERC20':
@@ -37,7 +40,7 @@ const IsAdmin = () => {
                         <MenuList color="darkslateblue" bg="lightgray">
                             <MenuItem onClick={() => setSelectedOption('Tokenize Admin = ERC1155')}>Tokenize = ERC1155</MenuItem>
                             <MenuItem onClick={() => setSelectedOption('DiscountToken Admin = ERC20')}>DiscountToken = ERC20</MenuItem>
-                            <MenuItem onClick={() => setSelectedOption('FundRaising = NFT presale & mint')}>FundRaiser = ERC1155 Presale & Mint</MenuItem>
+                            <MenuItem onClick={() => setSelectedOption('FundRaising Admin = NFT presale & mint')}>FundRaiser = Tokenized GFV presale & mint</MenuItem>
                             <MenuItem onClick={() => setSelectedOption('Staking Pool ID1 Admin')}>Staking Pool ID1</MenuItem>
                         </MenuList>
                     </Menu>
