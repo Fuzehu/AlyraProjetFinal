@@ -5,7 +5,7 @@ import { useAccount } from 'wagmi';
 import { ethers } from "ethers"
 
 
-const Morgon = () => {
+const MorgonContent = () => {
     const fundraiserContractAddress = process.env.NEXT_PUBLIC_TOKENIZE_CONTRACT_ADDRESS
     const tokenizeContractAddress2 = process.env.NEXT_PUBLIC_TOKENIZE_CONTRACT_ADDRESS
     const { isConnected, address } = useAccount()
@@ -15,10 +15,10 @@ const Morgon = () => {
   
 
     return (
-        <div>
+        <Box flexGrow={1} minHeight="100vh" display="flex" flexDirection="column">
             MORGON TOKEN
-        </div>
+        </Box>
     )
 }
 
-export default Morgon
+export default MorgonContent

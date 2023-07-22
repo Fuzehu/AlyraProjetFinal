@@ -2,7 +2,7 @@
 
 import React from 'react'
 import NotConnected from '../NotConnected/NotConnected'
-import PropertyList from './Property List/PropertyList'
+import PropertyList from './PropertyList/PropertyList'
 
 //CHAKRA UI
 import { Box, Flex, Text } from '@chakra-ui/react'
