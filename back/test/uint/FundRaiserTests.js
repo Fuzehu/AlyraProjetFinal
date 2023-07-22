@@ -55,7 +55,7 @@ describe('Testing FundRaiser.sol contract', function() {
         });
 
         it("Should initialize the contract in the right state", async function() {
-            expect(await fundRaiser.currentStatus()).to.equal(0); // As Fundraising status is first in enum so its value will be 0
+            expect(await fundRaiser.currentStatus()).to.equal(0); // As Listing status is first in enum so its value will be 0
         });
 
         it("Should set the initial ticket count to zero", async function() {
@@ -112,7 +112,30 @@ describe('Testing FundRaiser.sol contract', function() {
     });
 
 
+    describe('Testing startFundraising function', function() {
+        it('Should revert if not called by the owner', async function() {
+            expect(fundRaiser.connect(addr1).startFundraising()).to.be.revertedWith("Ownable: caller is not the owner");
+        });
+    
+        it('Should revert if current status is not Listing', async function() {
+            await fundRaiser.connect(owner).startFundraising();  // first time should pass
+            expect(fundRaiser.startFundraising()).to.be.revertedWith("Cannot start fundraising from current status"); // second time should fail
+        });
+    
+        it('Should be able to start fundraising if current status is Listing', async function() {
+            await expect(fundRaiser.connect(owner).startFundraising())
+                .to.emit(fundRaiser, 'StatusChanged')
+                .withArgs(1); // Fundraising status should be 1 after startFundraising
+            expect(fundRaiser.currentStatus()).to.eventually.equal(1);
+        });
+    });
+
+
     describe('Testing endFundraiser function', function() {
+        beforeEach(async function() {
+            await fundRaiser.connect(owner).startFundraising(); 
+        });
+
         it('Should not be able to end the fundraiser if ticketsSold is less than MAX_TICKETS', async function() {
             await fundRaiser.addToWhitelist(addr1.address);
             await mockedDai.connect(addr1).approve(fundRaiser.target, '500000000000000000000');
@@ -121,13 +144,17 @@ describe('Testing FundRaiser.sol contract', function() {
             expect(fundRaiser.connect(owner).endFundraiser()).to.be.revertedWith("Fundraising not finished");
         });
     
+        it('Should revert if not called by owner', async function() {
+            expect(fundRaiser.connect(addr1).endFundraiser()).to.be.revertedWith("Ownable: caller is not the owner");
+        });
+
         it('Should be able to end the fundraiser if ticketsSold is equal to MAX_TICKETS', async function() {
             await fundRaiser.addToWhitelist(addr1.address);
             await mockedDai.connect(addr1).approve(fundRaiser.target, '100000000000000000000000');
             await fundRaiser.connect(addr1).buyTicket(200);
     
             await fundRaiser.connect(owner).endFundraiser();
-            expect(fundRaiser.currentStatus()).to.eventually.equal(1);
+            expect(fundRaiser.currentStatus()).to.eventually.equal(2);
         });
     
         it('Should transfer the funds to the owner when the fundraiser ends', async function() {
@@ -145,6 +172,10 @@ describe('Testing FundRaiser.sol contract', function() {
 
 
     describe('Testing startMinting function', function() {
+        beforeEach(async function() {
+            await fundRaiser.connect(owner).startFundraising(); 
+        });
+        
         it('Should not be able to start minting if the fundraiser has not ended', async function() {
             await fundRaiser.addToWhitelist(addr1.address);
             await mockedDai.connect(addr1).approve(fundRaiser.target, '500000000000000000000');
@@ -153,16 +184,24 @@ describe('Testing FundRaiser.sol contract', function() {
             await expect(fundRaiser.connect(owner).startMinting()).to.be.revertedWith("Fundraising not finished yet");
         });
     
+        it('Should revert if not called by owner', async function() {
+            expect(fundRaiser.connect(addr1).startMinting()).to.be.revertedWith("Ownable: caller is not the owner");
+        });
+
+        it('Should revert if current status is not FundraisingComplete', async function() {
+            await expect(fundRaiser.connect(owner).startMinting()).to.be.revertedWith("Fundraising not finished yet");
+        });
+
         it('Should be able to start minting if the fundraiser has ended', async function() {
-          await fundRaiser.addToWhitelist(addr1.address);
-          await mockedDai.connect(addr1).approve(fundRaiser.target, '100000000000000000000000');
-          await fundRaiser.connect(addr1).buyTicket(200);
-    
-          await fundRaiser.connect(owner).endFundraiser();
-          expect(BigInt((await fundRaiser.currentStatus()).toString())).to.equal(BigInt(1)); 
-    
-          await fundRaiser.connect(owner).startMinting();
-          expect(BigInt((await fundRaiser.currentStatus()).toString())).to.equal(BigInt(2)); 
+            await fundRaiser.addToWhitelist(addr1.address);
+            await mockedDai.connect(addr1).approve(fundRaiser.target, '100000000000000000000000');
+            await fundRaiser.connect(addr1).buyTicket(200);
+            await fundRaiser.connect(owner).endFundraiser();
+
+            expect(BigInt((await fundRaiser.currentStatus()).toString())).to.equal(BigInt(2)); 
+
+            await fundRaiser.connect(owner).startMinting();
+            expect(BigInt((await fundRaiser.currentStatus()).toString())).to.equal(BigInt(3)); 
         });
     });
 
@@ -172,6 +211,7 @@ describe('Testing FundRaiser.sol contract', function() {
             await fundRaiser.addToWhitelist(addr2.address);
             await mockedDai.connect(addr1).approve(fundRaiser.target, '50000000000000000000000');
             await mockedDai.connect(addr2).approve(fundRaiser.target, '50000000000000000000000'); 
+            await fundRaiser.connect(owner).startFundraising(); 
         });
     
         it('Should not be able to buy tickets if address is not whitelisted', async function() {
@@ -229,6 +269,7 @@ describe('Testing FundRaiser.sol contract', function() {
             await fundRaiser.addToWhitelist(addr2.address);
             await mockedDai.connect(addr1).approve(fundRaiser.target, '50000000000000000000000'); 
             await mockedDai.connect(addr2).approve(fundRaiser.target, '50000000000000000000000'); 
+            await fundRaiser.connect(owner).startFundraising(); 
             await fundRaiser.connect(addr1).buyTicket(100);
             await fundRaiser.connect(addr2).buyTicket(100);
             await fundRaiser.connect(owner).endFundraiser();
@@ -267,6 +308,7 @@ describe('Testing FundRaiser.sol contract', function() {
             await fundRaiser.addToWhitelist(addr3.address);
             await mockedDai.connect(addr1).approve(fundRaiser.target, '50000000000000000000000'); 
             await mockedDai.connect(addr2).approve(fundRaiser.target, '25000000000000000000000'); 
+            await fundRaiser.connect(owner).startFundraising(); 
             await fundRaiser.connect(addr1).buyTicket(100);
             await fundRaiser.connect(addr2).buyTicket(50);
         });

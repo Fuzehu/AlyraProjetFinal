@@ -33,14 +33,15 @@ contract FundRaiser is Ownable, ReentrancyGuard {
     ITokenize public tokenize;
 
 
-    uint128 public constant TICKET_PRICE = 500 ether; // drop the price to 50 on testnet deployment for tokens accessibility reseasons
+    uint128 public constant TICKET_PRICE = 500 ether; 
     uint24 public constant MAX_TICKETS = 200;
     uint24 public propertyId = 1;
     uint256 public ticketsSold = 0;
 
 
     enum WorkflowStatus { 
-        Fundraising,
+        Listing,
+        Fundraisinglive,
         FundraisingComplete,
         MintingLive 
     }
@@ -65,7 +66,7 @@ contract FundRaiser is Ownable, ReentrancyGuard {
     constructor(IERC20 _acceptedToken, ITokenize _tokenize) {
         acceptedToken = _acceptedToken;
         tokenize = _tokenize;
-        currentStatus = WorkflowStatus.Fundraising;
+        currentStatus = WorkflowStatus.Listing;
     }
 
 ///////////////////////////////////////////////// *-- Whitelist Management *-- ///////////////////////////////////////////////
@@ -96,13 +97,26 @@ contract FundRaiser is Ownable, ReentrancyGuard {
 ///////////////////////////////////////////////// *-- WorflowStatus Change *-- ///////////////////////////////////////////////
 
     /**
+     * @notice Function that transitions the workflow status from "Listing" to "Fundraising"
+     *         It enables the process to move from a state where users can only view the property details 
+     *         to a state where they can contribute funds for the purchase of the property.
+     * @dev This function can only be called by the contract owner
+     * @dev Emits a StatusChanged event
+     */
+    function startFundraising() public onlyOwner {
+        require(currentStatus == WorkflowStatus.Listing, "Cannot start fundraising from current status");
+        currentStatus = WorkflowStatus.Fundraisinglive;
+        emit StatusChanged(currentStatus);
+    }
+
+    /**
      * @notice Function that end the fundraising phase and transfer collected tokens to the owner address
      *         By activating this function the process is in a sort of "pause" where the owner gather the collected money and purchase the property
      * @dev This function can only be called by the contract owner
      * @dev emit StatusChanged event 
      */
     function endFundraiser() public onlyOwner {
-        require(currentStatus == WorkflowStatus.Fundraising, "Fundraising is already completed");
+        require(currentStatus == WorkflowStatus.Fundraisinglive, "Fundraising is already completed");
         require(ticketsSold >= MAX_TICKETS, "Fundraising not finished");
         currentStatus = WorkflowStatus.FundraisingComplete;
 
@@ -133,7 +147,7 @@ contract FundRaiser is Ownable, ReentrancyGuard {
      * @param numberOfTickets The number of tickets to buy
      */
     function buyTicket(uint24 numberOfTickets) public nonReentrant {
-        require(currentStatus == WorkflowStatus.Fundraising, "Fundraising ended");
+        require(currentStatus == WorkflowStatus.Fundraisinglive, "Fundraising ended");
         require(whitelist[msg.sender], "Your address is not whitelisted");
         require(numberOfTickets > 0, "At least 1 ticket must be purchased");
         require(ticketsSold + numberOfTickets <= MAX_TICKETS, "There are not enough tickets available");
@@ -172,7 +186,7 @@ contract FundRaiser is Ownable, ReentrancyGuard {
      * @dev This function uses the ERC20 transfer function to process the refund and requires the operation to succeed
      */
     function requestRefund() public {
-        require(currentStatus == WorkflowStatus.Fundraising, "Fundraising is already completed");
+        require(currentStatus == WorkflowStatus.Fundraisinglive, "Fundraising is already completed");
         require(ticketsSold < MAX_TICKETS, "All tickets have been sold");
         require(whitelist[msg.sender], "Your address is not whitelisted");
 
