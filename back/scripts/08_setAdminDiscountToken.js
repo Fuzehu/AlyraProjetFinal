@@ -3,7 +3,7 @@ const { ethers } = require("hardhat");
 async function main() {
   // The deployed address of the DiscountToken contract
   const DiscountTokenContractAddress = "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512";
-  // The address to be set as the admin of the DiscountToken contract, in our case the address of the Staking contract
+  // The address to be set as admin of the DiscountToken contract, in our case the address of the Staking contract
   const _newAdminAddress = "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9";
 
   // Retrieving the Factory (artifacts) of the DiscountToken contract

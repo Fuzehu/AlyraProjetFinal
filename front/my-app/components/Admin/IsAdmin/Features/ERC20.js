@@ -173,7 +173,7 @@ const ERC20 = () => {
                     </Box>
                 </Box>
                 <Box width="33%" p={5} bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" mt={3} mb={3} ml={3}>
-                    <Heading color="darkslateblue">Revoke Admin Rights</Heading>
+                    <Heading color="darkslateblue">Revoke Rights</Heading>
                     <Input placeholder="Enter address" mb={3} value={adminAddressToRevoke} onChange={e => setAdminAddressToRevoke(e.target.value)} />
                     <Button onClick={() => revokeAdminRights(adminAddressToRevoke)} bg="slateblue" color="white">Revoke Admin Rights</Button>
                 </Box>

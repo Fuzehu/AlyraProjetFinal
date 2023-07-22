@@ -20,7 +20,7 @@ const StakingPoolID1 = () => {
   const [updateFlag, setUpdateFlag] = useState(false);
   const [MVSbalance, setMVSbalance] = useState('');
 
-
+  
   const approveContract = async () => {
     try {
       const { request } = await prepareWriteContract({
