@@ -5,7 +5,7 @@ import React from 'react'
 const MyVinesContent = () => {
   return (
     <div>
-      Content here
+      Afficher les NFT mintés par l'utilisateur ici
     </div>
   )
 }
