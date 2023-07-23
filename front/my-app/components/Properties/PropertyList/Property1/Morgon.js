@@ -1,14 +1,12 @@
 "use client"
 import React, { useState, useEffect } from 'react'
-import { Box, Flex, Text, VStack, useToast, Button, Input, Heading, Image, Center } from '@chakra-ui/react'
+import { Box, Flex, Text, VStack, useToast, Button, Input, Heading, Image, Center, HStack } from '@chakra-ui/react'
 import FundRaiserContract from '../../../../public/artifacts/contracts/FundRaiser.sol/FundRaiser.json';
-import TokenizeContract from '../../../../public/artifacts/contracts/Tokenize.sol/Tokenize.json';
 import MockedDaiContract from '../../../../public/artifacts/contracts/MockedDai.sol/MockedDai.json';
 import { useAccount } from 'wagmi';
 import { createPublicClient, http, parseAbiItem } from 'viem'
 import { hardhat, sepolia } from 'viem/chains'
 import { prepareWriteContract, writeContract, readContract } from '@wagmi/core';
-import propertyImage from '../../../../public/images/Morgon.png';
 
 
 const MorgonFundraiser = () => {
@@ -204,12 +202,35 @@ const MorgonFundraiser = () => {
     return (
         <Box flexGrow={1} minHeight="100vh" display="flex" flexDirection="column" p={5}>
             <Heading size="xl" mb="5" color="darkslateblue">Welcome to Property Ticketing</Heading>
-            <Text mb="5">On this page, you can view the details of a property, check its current status, buy tickets, and manage your purchases.</Text>
+            <Text mb="5">Enter the world of property tokenization, a revolutionary way to invest in and own properties. We are delighted to introduce the first tokenized plot subject to fundraising from My Vine Stalks, a property within the Morgon AOP designation."</Text>
+    
+            <Box bg="#F3F2FF" p="5" border="3px solid darkslateblue" borderRadius="lg" boxShadow="lg" mb="5" color="black" display="flex" flexDirection="column" alignItems="center" justifyContent="center">
+                <Text fontSize="2xl" fontWeight="bold" color="darkslateblue" textAlign="center">Current Property: MVS - Morgon</Text>
+                <Text textAlign="center" mb={3}>
+                    Located in the esteemed AOP Morgon, this property sprawls across 1 hectare, bearing vines that are 40 years old. Predominantly growing the widely revered Gamay grape variety, the farm yields 8HL/HA annually. The parcel is valued at $100,000 and the rent for 2022 stands at 338 euros/HL. 
+                </Text>
+                <Text textAlign="center">
+                    Each ticket you purchase lets you mint an equivalent NFT, further marking your stake in the property. Remember, the value of the parcel will be reassessed every year, promising an exciting journey in the world of wine. Let's toast to that!
+                </Text>
+            </Box>
     
             <Flex width="100%" justify="space-between" mb="5">
-                <Image src="/images/Morgon.png" alt="Property image" objectFit="cover" width="60%" height="400px" borderRadius="md" boxShadow="lg"/>
+                <Box position="relative" width="60%" height="400px">
+                    <Image src="/images/Morgon.png" alt="Property image" border="3px solid darkslateblue" objectFit="cover" width="100%" height="100%" borderRadius="md" boxShadow="lg"/>
+                    <Text 
+                        position="absolute" 
+                        bottom="0" 
+                        left="0" 
+                        bg="rgba(255,255,255,0.7)" 
+                        color="black" 
+                        p="2"
+                        whiteSpace="nowrap"
+                    >
+                        MVS - Morgon
+                    </Text>
+                </Box>
                 <VStack bg="#F3F2FF" p="5" border="3px solid darkslateblue" borderRadius="lg" spacing={3} width="35%" color="black">
-                    <Text fontSize="xl" color="darkslateblue">Current Status: </Text>
+                    <Text fontSize="2xl" fontWeight="bold" color="darkslateblue" textAlign="center">Current Status: </Text>
                     {Object.entries(STATUS_MAPPING).map(([key, statusText]) => (
                         <Box key={key} display="flex" justifyContent="center" alignItems="center" bg={status.text === statusText ? "slateblue" : "#D3D2FF"} p="2" borderRadius="md" height="60px" width="100%" color={status.text === statusText ? "white" : "black"} border={status.text === statusText ? "2px solid black" : "none"}>
                             <Text>{statusText}</Text>
@@ -218,66 +239,122 @@ const MorgonFundraiser = () => {
                 </VStack>
             </Flex>
     
-            <Flex width="100%" justify="space-between" mb="5">
-                <Box bg="#F3F2FF" p="5" border="3px solid darkslateblue" borderRadius="lg" boxShadow="lg" width="30%" color="black">
-                    <Text fontSize="xl" color="darkslateblue">Property Details</Text>
-                    <Text>Ticket Price: 500 DAI</Text>
-                    <Text>Max Tickets: 200</Text>
-                    <Text>Property ID: 1</Text>
-                    <Text>Tickets Sold: {ticketsSold.toString()}</Text>
+            <Flex width="100%" justify="space-between" mb="5" direction={["column", "row"]} alignItems="center">
+                <Box minHeight="200px" bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" p={5} color="black" width={["100%", "35%"]} justifyContent="center">
+                    <Text fontSize="2xl" fontWeight="bold" mb="4" color="darkslateblue" textAlign="center">User Details</Text>
+                    <HStack spacing={5} align="center">
+                        <Box bg="#D3D2FF" borderRadius="lg" p={5} border="1px" borderColor="darkslateblue" width="170px" height="80px" d="flex" justifyContent="center" alignItems="center" flexDirection="column">
+                            <Text>Tickets Owned</Text>
+                            <Text fontWeight="bold" color="darkslateblue">{ticketOwners.toString()}</Text>
+                        </Box>
+                        <Box bg="#D3D2FF" borderRadius="lg" p={5} border="1px" borderColor="darkslateblue" width="170px" height="80px" d="flex" justifyContent="center" alignItems="center" flexDirection="column">
+                            <Text>Whitelist Status</Text>
+                            <Text fontWeight="bold" color={whitelist ? "green" : "red"}>{whitelist ? "Whitelisted" : "Not Whitelisted"}</Text>
+                        </Box>
+                    </HStack>
                 </Box>
-    
-                {status.text === STATUS_MAPPING[1] && (
-                <Box bg="#E2E1FF" p="5" border="3px solid #4B0082" borderRadius="lg" boxShadow="lg" width="30%" color="#404040">
-                    <Heading size="md" mb="2" color="#4B0082">Buy Tickets</Heading>
-                    <Text>This function allows you to buy a certain number of tickets.</Text>
-                    <Input value={numberOfTicketsInput} onChange={(e) => setNumberOfTicketsInput(e.target.value)} placeholder="Enter the number of tickets" size="md" mb="2" color="#4B0082"/>
-                    <Button flexShrink={0} bg="#4B0082" color="white" onClick={buyTicket}>Buy Ticket</Button>
-                </Box>
-                )}
-    
-                {status.text === STATUS_MAPPING[1] && (
-                <Box bg="#E2E1FF" p="5" border="3px solid #4B0082" borderRadius="lg" boxShadow="lg" width="30%" color="#404040">
-                    <Heading size="md" mb="2" color="#4B0082">Request Refund</Heading>
-                    <Text>This function allows you to request a refund for your tickets, only if the tickets sale have not already ended</Text>
-                    <Button flexShrink={0} bg="#4B0082" color="white" onClick={requestRefund}>Request Refund</Button>
-                </Box>
-                )}
-    
-                <Box bg="#F3F2FF" p="5" border="3px solid darkslateblue" borderRadius="lg" boxShadow="lg" width="30%" color="black">
-                    <Text fontSize="xl" color="darkslateblue">User Details</Text>
-                    <Text>Tickets Owned: {ticketOwners.toString()}</Text>
-                    <Text>Whitelist Status: {whitelist ? "Whitelisted" : "Not Whitelisted"}</Text>
+
+                <Box minHeight="200px" bg="#F3F2FF" border="3px solid darkslateblue" borderRadius="lg" p={5} color="black" width={["100%", "60%"]} justifyContent="center">
+                    <Text fontSize="2xl" fontWeight="bold" mb="4" color="darkslateblue" textAlign="center">Property Details</Text>
+                    <HStack spacing={5} align="center">
+                        <Box bg="#D3D2FF" borderRadius="lg" p={5} border="1px" borderColor="darkslateblue" width="170px" height="80px" d="flex" justifyContent="center" alignItems="center" flexDirection="column">
+                            <Text>Ticket Price</Text>
+                            <Text fontWeight="bold" color="darkslateblue">500 DAI</Text>
+                        </Box>
+                        <Box bg="#D3D2FF" borderRadius="lg" p={5} border="1px" borderColor="darkslateblue" width="170px" height="80px" d="flex" justifyContent="center" alignItems="center" flexDirection="column">
+                            <Text>Max Tickets</Text>
+                            <Text fontWeight="bold" color="darkslateblue">200</Text>
+                        </Box>
+                        <Box bg="#D3D2FF" borderRadius="lg" p={5} border="1px" borderColor="darkslateblue" width="170px" height="80px" d="flex" justifyContent="center" alignItems="center" flexDirection="column">
+                            <Text>Property ID</Text>
+                            <Text fontWeight="bold" color="darkslateblue">1</Text>
+                        </Box>
+                        <Box bg="#D3D2FF" borderRadius="lg" p={5} border="1px" borderColor="darkslateblue" width="170px" height="80px" d="flex" justifyContent="center" alignItems="center" flexDirection="column">
+                            <Text>Tickets Sold</Text>
+                            <Text fontWeight="bold" color="darkslateblue">{ticketsSold.toString()}</Text>
+                        </Box>
+                    </HStack>
                 </Box>
             </Flex>
-    
+
             {status.text === STATUS_MAPPING[0] && (
-                <Box bg="#F3F2FF" p="5" border="3px solid darkslateblue" borderRadius="lg" boxShadow="lg" mb="5" color="black">
-                    <Text>We are currently in the listing phase. Please check back later to purchase tickets.</Text>
+                <Box bg="#D0CFFF" p="5" border="3px solid darkslateblue" borderRadius="lg" boxShadow="lg" mb="5" color="black" display="flex" flexDirection="column" alignItems="center" justifyContent="center">
+                    <Text textAlign="center" mb={3}>
+                        Welcome to the listing phase of our project! We're making preparations for the fundraising stage which will start soon.
+                    </Text>
+                    <Text textAlign="center" mb={3}>
+                        Please note that only whitelisted and eligible participants will be able to join the presale.
+                    </Text>
+                    <Text textAlign="center">
+                        Ensure that you've completed the Know Your Customer (KYC) process. This step is crucial for your eligibility in the upcoming presale !
+                    </Text>
+                    <Text textAlign="center">
+                        In the meantime, feel free to explore the property characteristics !
+                    </Text>
                 </Box>
             )}
     
-            {status.text === STATUS_MAPPING[2] && (
-                <Box bg="#F3F2FF" p="5" border="3px solid darkslateblue" borderRadius="lg" boxShadow="lg" width="40%" color="black">
-                    <Text>Fundraising has been completed. Thank you for your support!</Text>
-                </Box>
-            )}
-    
-            {status.text === STATUS_MAPPING[3] && (
-                <Flex justifyContent="center" width="100%">
-                    <Box bg="#E2E1FF" p="5" border="3px solid #4B0082" borderRadius="lg" boxShadow="lg" width="40%" color="#404040">
-                        <Flex direction="row" justify="space-between" alignItems="center" height="100%">
-                            <VStack alignItems="center">
-                                <Heading size="md" mb="2" color="#4B0082">Claim Tokens</Heading>
-                                <Text textAlign="center">You can now claim tokens corresponding to the number of tickets you have previously purchased</Text>
-                            </VStack>
-                            <Button flexShrink={0} bg="#4B0082" color="white" onClick={claimTokens} height="80%">Claim Tokens</Button>
-                        </Flex>
+            <Flex justifyContent="center" alignItems="center" width="100%">
+                {status.text === STATUS_MAPPING[1] && (
+                    <Flex justifyContent="space-around" width="100%">
+                        <Box bg="#D0CFFF" p="5" border="3px solid #4B0082" borderRadius="lg" boxShadow="lg" width="35%" color="#404040">
+                            <Flex direction="column" height="100%" justifyContent="space-between">
+                                <VStack alignItems="center" spacing="5">
+                                    <Heading size="md" color="#4B0082">Buy Tickets</Heading>
+                                    <Flex direction="column" justifyContent="center" alignItems="center" flexGrow={1}>
+                                        <Center>
+                                            <Text textAlign="center" mb="1rem">You can buy your desired number of tickets</Text>
+                                        </Center>
+                                        <Flex direction="column" justifyContent="center" alignItems="center" flexGrow={1}>
+                                            <Input textAlign="center" value={numberOfTicketsInput} onChange={(e) => setNumberOfTicketsInput(e.target.value)} placeholder="Enter the number of tickets" size="md" h="2.5rem" mb="2" mt="3" color="#4B0082"/>
+                                        </Flex>
+                                    </Flex>
+                                </VStack>
+                                <Button flexShrink={0} h="2.5rem" bg="#4B0082" color="white" onClick={buyTicket}>Buy Ticket</Button>
+                            </Flex>
+                        </Box>
+                        <Box bg="#D0CFFF" p="5" border="3px solid #4B0082" borderRadius="lg" boxShadow="lg" width="35%" color="#404040">
+                            <Flex direction="column" height="100%" justifyContent="space-between">
+                                <VStack alignItems="center" spacing="5">
+                                    <Heading size="md" mb="2" color="#4B0082">Request Refund</Heading>
+                                    <Flex direction="column" justifyContent="center" alignItems="center" flexGrow={1}>
+                                        <Center>
+                                            <Text textAlign="center">This function allows you to request a refund for your tickets. Usable only if the tickets sale have not already ended</Text>
+                                        </Center>
+                                    </Flex>
+                                </VStack>
+                                <Button flexShrink={0} bg="#4B0082" color="white" onClick={requestRefund}>Request Refund</Button>
+                            </Flex>
+                        </Box>
+                    </Flex>
+                )}
+
+                {status.text === STATUS_MAPPING[2] && (
+                    <Box bg="#D0CFFF" p="5" border="3px solid darkslateblue" borderRadius="lg" boxShadow="lg" mb="5" color="black" display="flex" flexDirection="column" alignItems="center" justifyContent="center">
+                        <Text textAlign="center" mb={3}>
+                            The fundraising for this property has now successfully concluded.
+                        </Text>
+                        <Text textAlign="center" mb={3}>
+                            We are diligently managing the necessary administrative processes to finalize the acquisition.
+                        </Text>
+                        <Text textAlign="center">
+                            Stay tuned for further updates! Once all paperwork is settled, we will announce when the minting process becomes available!
+                        </Text>
                     </Box>
-                </Flex>
-            )}
+                )}
+
+                {status.text === STATUS_MAPPING[3] && (
+                    <Center bg="#D0CFFF" p="5" border="3px solid #4B0082" borderRadius="lg" boxShadow="lg" width="30%" color="#404040">
+                        <VStack alignItems="center" justifyContent="center">
+                            <Heading size="md" mb="2" color="#4B0082">Claim Tokens</Heading>
+                            <Text textAlign="center">You can now claim tokens corresponding to the number of tickets you have previously purchased</Text>
+                            <Button flexShrink={0} bg="#4B0082" color="white" onClick={claimTokens}>Claim Tokens</Button>
+                        </VStack>
+                    </Center>
+                )}  
+            </Flex>
         </Box>
-    )
+    );
 }
 
 export default MorgonFundraiser
