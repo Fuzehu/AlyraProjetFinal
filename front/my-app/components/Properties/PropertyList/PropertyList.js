@@ -11,9 +11,7 @@ const PropertyList = () => {
                     backgroundImage="/images/Morgon.png" backgroundSize="cover">
                     <Flex direction="column" h="100%" justifyContent="flex-end" alignItems="center" p={5}>
                         <Link href="/ourListings/morgon">
-                            <Button colorScheme="purple">
-                              Access Presale
-                            </Button>
+                            <Button colorScheme="purple"> Access Presale !</Button>
                         </Link>
                     </Flex>
                 </Box>
@@ -35,9 +33,7 @@ const PropertyList = () => {
                     backgroundImage="url('https://images.winalist.com/blog/wp-content/uploads/2021/03/26144459/AdobeStock_211595652-1-copy.jpeg')" backgroundSize="cover">
                     <Flex direction="column" h="100%" justifyContent="flex-end" alignItems="center" p={5}>
                         <Link href="/ourListings/stEmilion">
-                            <Button colorScheme="purple">
-                              Access Presale
-                            </Button>
+                            <Button colorScheme="purple">Access Presale !</Button>
                         </Link>
                     </Flex>
                 </Box>
