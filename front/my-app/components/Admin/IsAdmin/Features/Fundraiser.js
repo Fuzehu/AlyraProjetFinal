@@ -5,13 +5,13 @@ import { ethers } from "ethers"
 import { prepareWriteContract, writeContract, readContract } from '@wagmi/core'
 import { useAccount } from 'wagmi'
 import { createPublicClient, http, parseAbiItem } from 'viem'
-import { hardhat, sepolia } from 'viem/chains'
+import { goerli, hardhat, sepolia } from 'viem/chains'
 import FundraiserContract from '../../../../public/artifacts/contracts/FundRaiser.sol/FundRaiser.json'
 
 const FundRaiser = () => {
     const fundraiserContractAddress = process.env.NEXT_PUBLIC_FUNDRAISER_CONTRACT_ADDRESS
     const client = createPublicClient({
-        chain: hardhat, sepolia,
+        chain: goerli, sepolia,
         transport: http(),
     })
     const { isConnected, address } = useAccount()

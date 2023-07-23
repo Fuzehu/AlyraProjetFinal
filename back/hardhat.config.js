@@ -4,6 +4,7 @@ require("dotenv").config();
 const PK = process.env.PK || "";
 const RPC_URL = process.env.RPC_URL || "";
 const ETHERSCAN = process.env.ETHERSCAN || "";
+const GOERLI_RPC_URL = process.env.GOERLI_RPC_URL || "";
 
 module.exports = {
   defaultNetwork: "hardhat",
@@ -17,6 +18,11 @@ module.exports = {
       url: RPC_URL,
       accounts: [`0x${PK}`],
       chainId: 11155111
+    },
+    goerli: {
+      url: GOERLI_RPC_URL,
+      accounts: [`0x${PK}`],
+      chainId: 5
     },
   },
 

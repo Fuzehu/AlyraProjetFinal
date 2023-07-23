@@ -3,11 +3,7 @@
 import React from 'react'
 import MyVinesContent from './MyVinesContent'
 import NotConnected from '../NotConnected/NotConnected'
-
-//CHAKRA UI
 import { Box, Flex, Text } from '@chakra-ui/react'
-
-// WAGMI
 import { useAccount } from 'wagmi';
 
 const MyVines = () => {

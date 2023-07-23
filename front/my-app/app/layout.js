@@ -1,22 +1,18 @@
 "use client"
 import './globals.css'
-// CHAKRA UI
 import { ChakraProvider } from '@chakra-ui/react'
-// RAINBOWKIT
 import '@rainbow-me/rainbowkit/styles.css';
 import {getDefaultWallets, RainbowKitProvider} from '@rainbow-me/rainbowkit';
-// WAGMI
+import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
-import { hardhat, polygonMumbai, sepolia } from 'wagmi/chains';
+import { hardhat, polygonMumbai, sepolia, goerli } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
-// HEADER & FOOTER
-import Display from '@/components/Layout/Layout';
 
 
 const { chains, publicClient } = configureChains(
-  [hardhat, sepolia, polygonMumbai],
+  [hardhat, goerli, sepolia, polygonMumbai],
   [
-    //alchemyProvider({ apiKey: process.env.ALCHEMY_ID }),
+    alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_ID_GOERLI }),
     publicProvider()
   ]
 );

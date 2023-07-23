@@ -57,8 +57,8 @@ contract FundRaiser is Ownable, ReentrancyGuard {
 
     /**
      * @notice For unit testing purpose, we create a DAI mocked contracts
-     *         For Sepolia deployment the token will be DAI coming from Aave faucet with the given Sepolia Address 
-     *         " 0xAC164473923FDF6Fc60C655b5425169d1bB3429A "
+     *         For Goerli deployment the token will be DAI coming from Aave faucet with the given Sepolia Address 
+     *         " 0xfA0e305E0f46AB04f00ae6b5f4560d61a2183E00 "
      * @notice This contract also interfaces with the contract Tokenize for token minting operation. The Tokenize contract should implement the ITokenize interface
      * @dev Contract constructor that sets the token to be accepted for buying tickets
      * @param _acceptedToken Address of the ERC20 token to be accepted

@@ -6,12 +6,12 @@ import { ethers } from "ethers"
 import { prepareWriteContract, writeContract, readContract } from '@wagmi/core'
 import { useAccount } from 'wagmi'
 import { createPublicClient, http, parseAbiItem } from 'viem'
-import { hardhat, sepolia } from 'viem/chains'
+import { sepolia, goerli } from 'viem/chains'
 
 const ERC20 = () => {
     const contractAddress = process.env.NEXT_PUBLIC_DISCOUNTTOKEN_CONTRACT_ADDRESS
     const client = createPublicClient({
-        chain: hardhat, sepolia,
+        chain: sepolia, goerli,
         transport: http(),
     })
     const { isConnected, address } = useAccount()

@@ -5,7 +5,7 @@ import FundRaiserContract from '../../../../public/artifacts/contracts/FundRaise
 import MockedDaiContract from '../../../../public/artifacts/contracts/MockedDai.sol/MockedDai.json';
 import { useAccount } from 'wagmi';
 import { createPublicClient, http, parseAbiItem } from 'viem'
-import { hardhat, sepolia } from 'viem/chains'
+import { sepolia, goerli } from 'viem/chains'
 import { prepareWriteContract, writeContract, readContract } from '@wagmi/core';
 
 
@@ -13,7 +13,7 @@ const MorgonFundraiser = () => {
     const fundraiserContractAddress = process.env.NEXT_PUBLIC_FUNDRAISER_CONTRACT_ADDRESS
     const mockedDaiContractAddress = process.env.NEXT_PUBLIC_MOCKEDDAI_CONTRACT_ADDRESS
     const client = createPublicClient({
-        chain: hardhat, sepolia,
+        chain: sepolia, goerli,
         transport: http(),
     })
     const { isConnected, address } = useAccount()

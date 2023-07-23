@@ -3,13 +3,13 @@ import React, { useState, useEffect } from 'react'
 import TokenizeContract from '../../public/artifacts/contracts/Tokenize.sol/Tokenize.json';
 import { useAccount } from 'wagmi';
 import { createPublicClient, http, parseAbiItem } from 'viem'
-import { hardhat, sepolia } from 'viem/chains'
+import { sepolia, goerli } from 'viem/chains'
 import { prepareWriteContract, writeContract, readContract } from '@wagmi/core';
 
 const MyVinesContent = () => {
     const contractAddress = process.env.NEXT_PUBLIC_TOKENIZE_CONTRACT_ADDRESS
     const client = createPublicClient({
-        chain: hardhat, sepolia,
+        chain: sepolia, goerli,
         transport: http(),
     })
     const { isConnected, address } = useAccount()
