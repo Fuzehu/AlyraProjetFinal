@@ -202,12 +202,12 @@ const MorgonFundraiser = () => {
     return (
         <Box flexGrow={1} minHeight="100vh" display="flex" flexDirection="column" p={5}>
             <Heading size="xl" mb="5" color="darkslateblue">Welcome to Property Ticketing</Heading>
-            <Text mb="5">Enter the world of property tokenization, a revolutionary way to invest in and own properties. We are delighted to introduce the first tokenized plot subject to fundraising from My Vine Stalks, a property within the Morgon AOP designation."</Text>
+            <Text mb="5">Enter the world of property tokenization, a revolutionary way to invest in and own properties. We are delighted to introduce the first tokenized plot subject to fundraising from My Vine Stalks, a property within the Morgon AOP designation.</Text>
     
             <Box bg="#F3F2FF" p="5" border="3px solid darkslateblue" borderRadius="lg" boxShadow="lg" mb="5" color="black" display="flex" flexDirection="column" alignItems="center" justifyContent="center">
-                <Text fontSize="2xl" fontWeight="bold" color="darkslateblue" textAlign="center">Current Property: MVS - Morgon</Text>
+                <Text fontSize="2xl" fontWeight="bold" color="darkslateblue" textAlign="center">Current Property : MVS - Morgon</Text>
                 <Text textAlign="center" mb={3}>
-                    Located in the esteemed AOP Morgon, this property sprawls across 1 hectare, bearing vines that are 40 years old. Predominantly growing the widely revered Gamay grape variety, the farm yields 8HL/HA annually. The parcel is valued at $100,000 and the rent for 2022 stands at 338 euros/HL. 
+                    Located in the esteemed AOP Morgon, this property sprawls across 1 hectare, bearing vines that are 40 years old. Predominantly growing the widely revered Gamay grape variety, the farm yields 8HL/HA annually. The parcel is valued at $100,000 and the 2022 yield stands at 338 dollars/HL. 
                 </Text>
                 <Text textAlign="center">
                     Each ticket you purchase lets you mint an equivalent NFT, further marking your stake in the property. Remember, the value of the parcel will be reassessed every year, promising an exciting journey in the world of wine. Let's toast to that!

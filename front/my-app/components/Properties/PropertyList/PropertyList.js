@@ -1,6 +1,6 @@
 "use client"
 import React from 'react'
-import { Box, Button, Flex, Text, UnorderedList, ListItem } from '@chakra-ui/react'
+import { Box, Button, Flex, Text, Center, Heading } from '@chakra-ui/react'
 import Link from 'next/link'
 
 const PropertyList = () => {
@@ -18,13 +18,13 @@ const PropertyList = () => {
                     </Flex>
                 </Box>
                 <Box bg="lavender" p="4" borderRadius="md" boxShadow="lg" mt="2" borderColor="darkslateblue" borderWidth="2px">
-                    <Text fontWeight="bold" mb="2">Property Informations:</Text>
+                    <Heading size="lg" fontWeight="bold" mb="2"><Center>Property 1 - Morgon Overview</Center></Heading>
                     <Box bg="white" p="2" borderRadius="md" boxShadow="lg" mt="2" borderColor="darkslateblue" borderWidth="2px" mb="2">
-                        <Text fontWeight="bold">Location and Size:</Text>
+                        <Text fontWeight="bold">Location and Size :</Text>
                         <Text>Located in AOP Morgon, this property sprawls across 1 hectare.</Text>
                     </Box>
                     <Box bg="white" p="2" borderRadius="md" boxShadow="lg" mt="2" borderColor="darkslateblue" borderWidth="2px">
-                        <Text fontWeight="bold">Parcel Value:</Text>
+                        <Text fontWeight="bold">Parcel Value :</Text>
                         <Text>The parcel is valued at $100,000.</Text>
                     </Box>
                 </Box>
@@ -42,17 +42,17 @@ const PropertyList = () => {
                     </Flex>
                 </Box>
                 <Box bg="lavender" p="4" borderRadius="md" boxShadow="lg" mt="2" borderColor="darkslateblue" borderWidth="2px">
-                    <Text fontWeight="bold" mb="2">Property Informations:</Text>
+                    <Heading size="lg" fontWeight="bold" mb="2"><Center>Property 2 - St-Emilion Overview</Center></Heading>
                     <Box bg="white" p="2" borderRadius="md" boxShadow="lg" mt="2" borderColor="darkslateblue" borderWidth="2px" mb="2">
-                        <Text fontWeight="bold">Location and Size:</Text>
+                        <Text fontWeight="bold">Location and Size :</Text>
                         <Text>Located in AOP St-Emilion, this property sprawls across 3.5 hectares.</Text>
                     </Box>
                     <Box bg="white" p="2" borderRadius="md" boxShadow="lg" mt="2" borderColor="darkslateblue" borderWidth="2px" mb="2">
-                        <Text fontWeight="bold">Parcel Value:</Text>
+                        <Text fontWeight="bold">Parcel Value :</Text>
                         <Text>The parcel is valued at $1.2 million.</Text>
                     </Box>
-                    <Box bg="lightgray" p="2" borderRadius="md" boxShadow="lg" mt="2" borderColor="darkslateblue" borderWidth="2px">
-                        <Text fontWeight="bold">Coming Soon!</Text>
+                    <Box bg="lightgray" p="2" borderRadius="md" alignItems="center" boxShadow="lg" mt="2" borderColor="darkslateblue" borderWidth="2px">
+                        <Text fontWeight="bold"><Center>Coming Soon!</Center></Text>
                     </Box>
                 </Box>
             </Box>
